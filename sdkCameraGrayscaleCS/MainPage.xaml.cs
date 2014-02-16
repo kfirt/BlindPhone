@@ -22,6 +22,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using System.Windows.Threading;
+using System.IO;
 
 // Directives
 using Microsoft.Devices;
@@ -127,13 +128,20 @@ namespace sdkCameraGrayscaleCS
                     pauseFramesEvent.WaitOne();
                     
                     // Copies the current viewfinder frame into a buffer for further manipulation.
-                    phCam.GetPreviewBufferArgb32(ARGBPx);
-    
+                    WriteableBitmap wbmp = new WriteableBitmap((int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
+                    phCam.GetPreviewBufferArgb32(wbmp.Pixels);
+                    
+                    //MemoryStream ms = new MemoryStream();
+                    //wbmp.SaveJpeg(ms, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height, 0, 100);
+
+                    //BitmapImage bmp = new BitmapImage();
+                    //bmp.SetSource(ms);
+
                     pauseFramesEvent.Reset();
                     Deployment.Current.Dispatcher.BeginInvoke(delegate()
                     {
                         Analyzer a = new Analyzer();
-                        var state = a.process(ARGBPx);
+                        var state = a.process(wbmp.Pixels);
                         var uri = string.Format("Assets/{0}.mp3", state);
                         MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
                         MyMedia.Play();
