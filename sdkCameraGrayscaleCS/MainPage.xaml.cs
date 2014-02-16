@@ -21,7 +21,8 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
-
+using System.Windows.Threading;
+using System.IO;
 
 // Directives
 using Microsoft.Devices;
@@ -36,15 +37,17 @@ namespace sdkCameraGrayscaleCS
         // Variables
         PhotoCamera cam = new PhotoCamera();
         private static ManualResetEvent pauseFramesEvent = new ManualResetEvent(true);
-        private WriteableBitmap wb;
+        //private WriteableBitmap wb;
         private Thread ARGBFramesThread;
         private bool pumpARGBFrames;
+        MediaElement MyMedia = new MediaElement();
 
 
         // Constructor
         public MainPage()
         {
             InitializeComponent();
+            this.LayoutRoot.Children.Add(MyMedia);
         }
 
         //Code for camera initialization event, and setting the source for the viewfinder
@@ -72,10 +75,6 @@ namespace sdkCameraGrayscaleCS
                     // Write message.
                     txtDebug.Text = "A Camera is not available on this device.";
                 });
-
-                // Disable UI.
-                GrayscaleOnButton.IsEnabled = false;
-                GrayscaleOffButton.IsEnabled = false;
             }
         }
 
@@ -99,13 +98,23 @@ namespace sdkCameraGrayscaleCS
                 this.Dispatcher.BeginInvoke(delegate()
                 {
                     txtDebug.Text = "Camera initialized";
+                
+                    // creating timer instance
+                    DispatcherTimer newTimer = new DispatcherTimer();
+                    // timer interval specified as 1 second
+                    newTimer.Interval = TimeSpan.FromSeconds(5);
+                    // Sub-routine OnTimerTick will be called at every 1 second
+                    //newTimer.Tick += OnTimerTick;
+                    newTimer.Tick += PumpARGBFrames;
+                    // starting the timer
+                    newTimer.Start();
                 });
 
             }
         }
 
         // ARGB frame pump
-        void PumpARGBFrames()
+        void PumpARGBFrames(Object sender, EventArgs args)
         {
             // Create capture buffer.
             int[] ARGBPx = new int[(int)cam.PreviewResolution.Width * (int)cam.PreviewResolution.Height];
@@ -114,29 +123,32 @@ namespace sdkCameraGrayscaleCS
             {
                 PhotoCamera phCam = (PhotoCamera)cam;
 
-                while (pumpARGBFrames)
-                {
+                //while (pumpARGBFrames)
+                //{
                     pauseFramesEvent.WaitOne();
-
+                    
                     // Copies the current viewfinder frame into a buffer for further manipulation.
-                    phCam.GetPreviewBufferArgb32(ARGBPx);
+                    WriteableBitmap wbmp = new WriteableBitmap((int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
+                    phCam.GetPreviewBufferArgb32(wbmp.Pixels);
+                    
+                    //MemoryStream ms = new MemoryStream();
+                    //wbmp.SaveJpeg(ms, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height, 0, 100);
 
-                    // Conversion to grayscale.
-                    for (int i = 0; i < ARGBPx.Length; i++)
-                    {
-                        ARGBPx[i] = ColorToGray(ARGBPx[i]);
-                    }
+                    //BitmapImage bmp = new BitmapImage();
+                    //bmp.SetSource(ms);
 
                     pauseFramesEvent.Reset();
                     Deployment.Current.Dispatcher.BeginInvoke(delegate()
                     {
-                        // Copy to WriteableBitmap.
-                        ARGBPx.CopyTo(wb.Pixels, 0);
-                        wb.Invalidate();
-
+                        Analyzer a = new Analyzer();
+                        var state = a.process(wbmp.Pixels);
+                        var uri = string.Format("Assets/{0}.mp3", state);
+                        MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                        MyMedia.Play();
+            
                         pauseFramesEvent.Set();
                     });
-                }
+                //}
 
             }
             catch (Exception e)
@@ -149,58 +161,15 @@ namespace sdkCameraGrayscaleCS
             }
         }
 
-        internal int ColorToGray(int color)
+        void OnTimerTick(Object sender, EventArgs args)
         {
-            int gray = 0;
+            Analyzer a = new Analyzer();
+            var state = a.process(null);
+            var uri = string.Format("Assets/{0}.mp3", state);
+            MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+            MyMedia.Play();
+             
 
-            int a = color >> 24;
-            int r = (color & 0x00ff0000) >> 16;
-            int g = (color & 0x0000ff00) >> 8;
-            int b = (color & 0x000000ff);
-
-            if ((r == g) && (g == b))
-            {
-                gray = color;
-            }
-            else
-            {
-                // Calculate for the illumination.
-                // I =(int)(0.109375*R + 0.59375*G + 0.296875*B + 0.5)
-                int i = (7 * r + 38 * g + 19 * b + 32) >> 6;
-
-                gray = ((a & 0xFF) << 24) | ((i & 0xFF) << 16) | ((i & 0xFF) << 8) | (i & 0xFF);
-            }
-            return gray;
-        }
-
-        // Start ARGB to grayscale pump.
-        private void GrayOn_Clicked(object sender, RoutedEventArgs e)
-        {
-            MainImage.Visibility = Visibility.Visible;
-            pumpARGBFrames = true;
-            ARGBFramesThread = new System.Threading.Thread(PumpARGBFrames);
-
-            wb = new WriteableBitmap((int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
-            this.MainImage.Source = wb;
-
-            // Start pump.
-            ARGBFramesThread.Start();
-            this.Dispatcher.BeginInvoke(delegate()
-            {
-                txtDebug.Text = "ARGB to Grayscale";
-            });
-        }
-
-        // Stop ARGB to grayscale pump.
-        private void GrayOff_Clicked(object sender, RoutedEventArgs e)
-        {
-            MainImage.Visibility = Visibility.Collapsed;
-            pumpARGBFrames = false;
-
-            this.Dispatcher.BeginInvoke(delegate()
-            {
-                txtDebug.Text = "";
-            });
         }
     }
 }
