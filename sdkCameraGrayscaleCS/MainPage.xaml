@@ -45,6 +45,7 @@
                Margin="16,0,0,16"
                Stretch="Uniform"/>
 
+        
         <!--Button StackPanel to the right of viewfinder>-->
         <StackPanel Grid.Column="1" >
             <Button             
