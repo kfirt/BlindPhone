@@ -103,7 +103,8 @@ namespace sdkCameraGrayscaleCS
                     // timer interval specified as 1 second
                     newTimer.Interval = TimeSpan.FromSeconds(5);
                     // Sub-routine OnTimerTick will be called at every 1 second
-                    newTimer.Tick += OnTimerTick;
+                    //newTimer.Tick += OnTimerTick;
+                    newTimer.Tick += PumpARGBFrames;
                     // starting the timer
                     newTimer.Start();
                 });
@@ -112,7 +113,7 @@ namespace sdkCameraGrayscaleCS
         }
 
         // ARGB frame pump
-        void PumpARGBFrames()
+        void PumpARGBFrames(Object sender, EventArgs args)
         {
             // Create capture buffer.
             int[] ARGBPx = new int[(int)cam.PreviewResolution.Width * (int)cam.PreviewResolution.Height];
@@ -121,8 +122,8 @@ namespace sdkCameraGrayscaleCS
             {
                 PhotoCamera phCam = (PhotoCamera)cam;
 
-                while (pumpARGBFrames)
-                {
+                //while (pumpARGBFrames)
+                //{
                     pauseFramesEvent.WaitOne();
                     
                     // Copies the current viewfinder frame into a buffer for further manipulation.
@@ -131,13 +132,15 @@ namespace sdkCameraGrayscaleCS
                     pauseFramesEvent.Reset();
                     Deployment.Current.Dispatcher.BeginInvoke(delegate()
                     {
-                        // Copy to WriteableBitmap.
-                        //ARGBPx.CopyTo(wb.Pixels, 0);
-                        //wb.Invalidate();
-
+                        Analyzer a = new Analyzer();
+                        var state = a.process(ARGBPx);
+                        var uri = string.Format("Assets/{0}.mp3", state);
+                        MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                        MyMedia.Play();
+            
                         pauseFramesEvent.Set();
                     });
-                }
+                //}
 
             }
             catch (Exception e)
@@ -157,6 +160,7 @@ namespace sdkCameraGrayscaleCS
             var uri = string.Format("Assets/{0}.mp3", state);
             MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
             MyMedia.Play();
+             
 
         }
     }
