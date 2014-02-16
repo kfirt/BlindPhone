@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using sdkCameraGrayscaleCS;
 using System.Drawing;
+using System.IO;
 
 namespace AnalyzerTests
 {
@@ -9,12 +10,24 @@ namespace AnalyzerTests
     public class UnitTest1
     {
         [TestMethod]
-        [DeploymentItem("reds")]
-        public void TestMethod1()
+        public void TestReds()
         {
+            //string[] files = Directory.GetFiles(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\reds\");
+            //foreach (var file in files)
+            //{
             Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\reds\WP_20140216_016.jpg"));
+        //    }
         }
 
+        //[TestMethod]
+        //public void TestGreen()
+        //{
+        //    string[] files = Directory.GetFiles(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\greens\");
+        //    foreach (var file in files)
+        //    {
+        //        Assert.AreEqual(AnalyzedState.Green, runAnalyzer(file));
+        //    }
+        //}
 
         private AnalyzedState runAnalyzer(string imagePath)
         {
