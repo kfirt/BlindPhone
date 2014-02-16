@@ -7,6 +7,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PhoneApp1", "PhoneApp1\Phon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sdkCameraGrayscaleCS", "sdkCameraGrayscaleCS\sdkCameraGrayscaleCS.csproj", "{8624FC18-F728-4DDD-A0F9-5735B0F0F401}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.csproj", "{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,14 @@ Global
 		{8624FC18-F728-4DDD-A0F9-5735B0F0F401}.Release|x86.ActiveCfg = Release|x86
 		{8624FC18-F728-4DDD-A0F9-5735B0F0F401}.Release|x86.Build.0 = Release|x86
 		{8624FC18-F728-4DDD-A0F9-5735B0F0F401}.Release|x86.Deploy.0 = Release|x86
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
