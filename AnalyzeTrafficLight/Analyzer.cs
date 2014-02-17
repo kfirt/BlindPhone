@@ -303,7 +303,7 @@ namespace AnalyzeTrafficLight
             return AnalyzedState.Red;
         }
 
-        public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height)
+        public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height) //, byte[] ycbcr, int ycbcrBufferSize)
         {
             Bitmap bit = new Bitmap(argb, width, height);
             return analyzeImage(bit); 
@@ -332,7 +332,7 @@ namespace AnalyzeTrafficLight
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
 			detectObj(segImage, objects);
             sizeFilter(objects, origImage);
-			//blackBoxFilter(objects, origImage);
+			blackBoxFilter(objects, origImage);
             //decide(result);
 
             return objects;
