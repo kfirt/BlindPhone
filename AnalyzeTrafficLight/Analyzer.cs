@@ -60,12 +60,12 @@ namespace AnalyzeTrafficLight
         {
             Color pixel = orig.GetPixel(x, y);
             ColorRange range = new ColorRange();
-            range.redMin = Convert.ToInt32(Math.Max(pixel.R - 20, 0));
-            range.redMax = Convert.ToInt32(Math.Min(pixel.R + 20, 255));
-            range.greenMin = Convert.ToInt32(Math.Max(pixel.G - 20, 0));
-            range.greenMax = Convert.ToInt32(Math.Min(pixel.G + 20, 255));
-            range.blueMin = Convert.ToInt32(Math.Max(pixel.B - 20, 0));
-            range.blueMax = Convert.ToInt32(Math.Min(pixel.B + 20, 255));
+            range.redMin = (int) (Math.Max(pixel.R - 20, 0));
+            range.redMax = (int) (Math.Min(pixel.R + 20, 255));
+			range.greenMin = (int) (Math.Max(pixel.G - 20, 0));
+            range.greenMax = (int) (Math.Min(pixel.G + 20, 255));
+            range.blueMin = (int) (Math.Max(pixel.B - 20, 0));
+            range.blueMax = (int) (Math.Min(pixel.B + 20, 255));
 
             int startX = Math.Max(0, x - w);
             int endX = Math.Min(orig.Width, x + w);
@@ -212,18 +212,19 @@ namespace AnalyzeTrafficLight
 
         }
 
-        static void sizeFilter(Bitmap im, List<AnalyzedObject> objects)
+		static void sizeFilter(List<AnalyzedObject> objects, Bitmap origImage)
         {
-            double size = im.Width*im.Height;
+			double size = origImage.Width * origImage.Height;
             int min = (int)((1.0 / 35520.0) * size);
             int max = (int)((1.0 / 11840.0) * size);
             
             foreach (var obj in objects)
             {
-                if (obj.size < min) continue;
-                if (obj.size > max) continue;
-                obj.decision = true;
-            }
+				if (obj.size < min)
+					obj.decision = false;
+                if (obj.size > max)
+					obj.decision = false;
+			}
         }
 
 		static void blackBoxFilter(List<AnalyzedObject> objects, Bitmap origImage)
@@ -241,7 +242,7 @@ namespace AnalyzeTrafficLight
 				for (int x = startX; x <= endX; x++)
 				{
 					for (int y = startY; y <= endY; y++)
-		{
+					{
 						tmp++;
 						Color c = origImage.GetPixel(x, y);
 						sr += c.R;
@@ -298,9 +299,9 @@ namespace AnalyzeTrafficLight
             Bitmap segImage = modify(origImage, redRange, greenRange);
 
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
-            detectObj(im, objects);
-            sizeFilter(objects);
-			blackBoxFilter(objects);
+			detectObj(origImage, objects);
+            sizeFilter(objects, origImage);
+			blackBoxFilter(objects, origImage);
             //decide(result);
 
             return objects;

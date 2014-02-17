@@ -72,10 +72,10 @@ namespace AnalyzerDemo
 
             foreach (var analyzedObject in analyzedObjects)
             {
-                int x1 = analyzedObject.bBox.leftTop.x;
-                int y1 = analyzedObject.bBox.leftTop.y;
-                int x2 = analyzedObject.bBox.rightBottom.x;
-                int y2 = analyzedObject.bBox.rightBottom.y;
+                int x1 = analyzedObject.bBox.topLeft.x;
+                int y1 = analyzedObject.bBox.topLeft.y;
+                int x2 = analyzedObject.bBox.bottomRight.x;
+                int y2 = analyzedObject.bBox.bottomRight.y;
 
                 double scaleX = (double)pictureBox1.Width / (double)image.Width;
                 double scaleY = (double)pictureBox1.Height / (double)image.Height;
