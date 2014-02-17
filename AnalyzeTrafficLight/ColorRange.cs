@@ -68,6 +68,8 @@ namespace AnalyzeTrafficLight
         {
             if ((double)G / (double)R > (1.0 / 8)) return false;
             if ((double)B / (double)R > (1.0 / 8)) return false;
+            if (G > 80) return false;
+            if (B > 80) return false;
             return true;
         }
     }
