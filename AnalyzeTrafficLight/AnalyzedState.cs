@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sdkCameraGrayscaleCS
+namespace AnalyzeTrafficLight
 {
     public enum AnalyzedState { Green, Red, Unknown };
 
