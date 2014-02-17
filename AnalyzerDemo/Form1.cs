@@ -18,7 +18,10 @@ namespace AnalyzerDemo
         public Form1()
         {
             InitializeComponent();
-            pictureBox1.Image = new System.Drawing.Bitmap(path);
+            if (System.IO.File.Exists(path))
+            {
+                pictureBox1.Image = new System.Drawing.Bitmap(path);
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
