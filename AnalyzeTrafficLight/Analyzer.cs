@@ -212,15 +212,18 @@ namespace AnalyzeTrafficLight
 
         }
 
-        static void sizeFilter(List<AnalyzedObject> objects)
+        static void sizeFilter(Bitmap im, List<AnalyzedObject> objects)
         {
+            double size = im.Width*im.Height;
+            int min = (int)((1.0 / 35520.0) * size);
+            int max = (int)((1.0 / 11840.0) * size);
+            
             foreach (var obj in objects)
             {
-                if (obj.size < 200)
-					obj.decision = false;
-                if (obj.size > 600)
-					obj.decision = false;
-			}
+                if (obj.size < min) continue;
+                if (obj.size > max) continue;
+                obj.decision = true;
+            }
         }
 
 		static void blackBoxFilter(List<AnalyzedObject> objects, Bitmap origImage)
@@ -238,7 +241,7 @@ namespace AnalyzeTrafficLight
 				for (int x = startX; x <= endX; x++)
 				{
 					for (int y = startY; y <= endY; y++)
-					{
+		{
 						tmp++;
 						Color c = origImage.GetPixel(x, y);
 						sr += c.R;
@@ -295,10 +298,9 @@ namespace AnalyzeTrafficLight
             Bitmap segImage = modify(origImage, redRange, greenRange);
 
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
-            detectObj(segImage, objects);
-
+            detectObj(im, objects);
             sizeFilter(objects);
-			blackBoxFilter(objects, origImage);
+			blackBoxFilter(objects);
             //decide(result);
 
             return objects;

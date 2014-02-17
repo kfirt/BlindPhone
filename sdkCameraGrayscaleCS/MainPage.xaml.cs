@@ -39,8 +39,8 @@ namespace sdkCameraGrayscaleCS
         PhotoCamera cam = new PhotoCamera();
         private static ManualResetEvent pauseFramesEvent = new ManualResetEvent(true);
         //private WriteableBitmap wb;
-        private Thread ARGBFramesThread;
-        private bool pumpARGBFrames;
+        //private Thread ARGBFramesThread;
+        //private bool pumpARGBFrames;
         MediaElement MyMedia = new MediaElement();
 
 
