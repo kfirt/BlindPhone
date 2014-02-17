@@ -14,5 +14,6 @@ namespace AnalyzeTrafficLight
         public int size { get; set; }
 
         public Color color { get; set; }
+        public bool decision { get; set; }
     }
 }
