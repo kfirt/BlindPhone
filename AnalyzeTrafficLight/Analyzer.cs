@@ -108,7 +108,7 @@ namespace AnalyzeTrafficLight
             return res;
         }
 
-        static int getObj(Bitmap im, int x, int y, bool[,] markMat, Color c, BoundingBox bBox)
+        static int getObj(Bitmap im, int x, int y, bool[,] markMat, Color c, BoundingBox bBox, ColorStat cSum, ColorStat cSum2)
         {
             if (y < 0 || y >= im.Height || x < 0 || x >= im.Width)
                 return 0;
@@ -122,16 +122,26 @@ namespace AnalyzeTrafficLight
             markMat[x, y] = true;
             int size = 1;
 
+            // set bounding box
             if (x < bBox.leftTop.x) bBox.leftTop.x = x;
             if (x > bBox.rightBottom.x) bBox.rightBottom.x = x;
             if (y < bBox.leftTop.y) bBox.leftTop.y = y;
             if (y > bBox.rightBottom.y) bBox.rightBottom.y = y;
 
+            // set sums
+            cSum.R += thisP.R;
+            cSum.G += thisP.G;
+            cSum.B += thisP.B;
+
+            cSum2.R += thisP.R * thisP.R;
+            cSum2.G += thisP.G * thisP.G;
+            cSum2.B += thisP.B * thisP.B;
+            
             for (int i = x - 1; i <= x + 1; ++i)
             {
                 for (int j = y - 1; j <= y + 1; ++j)
                 {
-                    size += getObj(im, i, j, markMat, c, bBox);
+                    size += getObj(im, i, j, markMat, c, bBox, cSum, cSum2);
                 }
             }
 
@@ -159,7 +169,10 @@ namespace AnalyzeTrafficLight
                     bBox.rightBottom.x = 0;
                     bBox.rightBottom.y = 0;
 
-                    int size = getObj(im, i, j, markMat, c, bBox);
+                    ColorStat cSum = new ColorStat();
+                    ColorStat cSum2 = new ColorStat();
+
+                    int size = getObj(im, i, j, markMat, c, bBox, cSum, cSum2);
                     if (size == 0) continue;
 
                     AnalyzedObject obj = new AnalyzedObject();
@@ -168,6 +181,17 @@ namespace AnalyzeTrafficLight
                     obj.size = size;
                     obj.color = c;
                     obj.bBox = bBox;
+
+                    cSum.R /= size;
+                    cSum.G /= size;
+                    cSum.B /= size;
+
+                    cSum2.R = Math.Sqrt(cSum2.R / size - cSum.R * cSum.R);
+                    cSum2.G = Math.Sqrt(cSum2.G / size - cSum.G * cSum.G);
+                    cSum2.B = Math.Sqrt(cSum2.B / size - cSum.B * cSum.B);
+
+                    obj.colorAv = cSum;
+                    obj.colorStdev = cSum2;
 
                     objects.Add(obj);
 
