@@ -47,7 +47,8 @@ namespace AnalyzerTests
                 if (o.decision == true)
                 {
                     if (o.color.Equal(Color.green)) return AnalyzedState.Green;
-                    if (o.color.Equal(Color.red)) return AnalyzedState.Red;
+                    else if (o.color.Equal(Color.red)) return AnalyzedState.Red;
+                    else return AnalyzedState.Unknown; 
                 }
             return AnalyzedState.Unknown; 
         }
