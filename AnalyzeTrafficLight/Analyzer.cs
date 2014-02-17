@@ -108,7 +108,7 @@ namespace AnalyzeTrafficLight
             return res;
         }
 
-        static int getObj(Bitmap im, int x, int y, bool[,] markMat, Color c)
+        static int getObj(Bitmap im, int x, int y, bool[,] markMat, Color c, BoundingBox bBox)
         {
             if (y < 0 || y >= im.Height || x < 0 || x >= im.Width)
                 return 0;
@@ -122,11 +122,16 @@ namespace AnalyzeTrafficLight
             markMat[x, y] = true;
             int size = 1;
 
+            if (x < bBox.leftTop.x) bBox.leftTop.x = x;
+            if (x > bBox.rightBottom.x) bBox.rightBottom.x = x;
+            if (y < bBox.leftTop.y) bBox.leftTop.y = y;
+            if (y > bBox.rightBottom.y) bBox.rightBottom.y = y;
+
             for (int i = x - 1; i <= x + 1; ++i)
             {
                 for (int j = y - 1; j <= y + 1; ++j)
                 {
-                    size += getObj(im, i, j, markMat, c);
+                    size += getObj(im, i, j, markMat, c, bBox);
                 }
             }
 
@@ -148,14 +153,21 @@ namespace AnalyzeTrafficLight
                     }
 
                     // we are on a non white pixel
-                    int size = getObj(im, i, j, markMat, c);
+                    BoundingBox bBox = new BoundingBox();
+                    bBox.leftTop.x = 10000;
+                    bBox.leftTop.y = 10000;
+                    bBox.rightBottom.x = 0;
+                    bBox.rightBottom.y = 0;
+
+                    int size = getObj(im, i, j, markMat, c, bBox);
                     if (size == 0) continue;
 
                     AnalyzedObject obj = new AnalyzedObject();
-                    obj.x = i;
-                    obj.y = j;
+                    obj.leftTop.x = i;
+                    obj.leftTop.y = j;
                     obj.size = size;
                     obj.color = c;
+                    obj.bBox = bBox;
 
                     objects.Add(obj);
 
