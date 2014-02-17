@@ -108,7 +108,8 @@ namespace AnalyzeTrafficLight
             return res;
         }
 
-        static int getObj(Bitmap im, int x, int y, bool[,] markMat, Color c, BoundingBox bBox, ColorStat cSum, ColorStat cSum2)
+        static int getObj(Bitmap im, int x, int y, bool[,] markMat, Color c,
+            BoundingBox bBox, ColorStat cSum, ColorStat cSum2, ObjPoint coordSum)
         {
             if (y < 0 || y >= im.Height || x < 0 || x >= im.Width)
                 return 0;
@@ -136,12 +137,15 @@ namespace AnalyzeTrafficLight
             cSum2.R += thisP.R * thisP.R;
             cSum2.G += thisP.G * thisP.G;
             cSum2.B += thisP.B * thisP.B;
-            
+
+            coordSum.x += x;
+            coordSum.y += y;
+
             for (int i = x - 1; i <= x + 1; ++i)
             {
                 for (int j = y - 1; j <= y + 1; ++j)
                 {
-                    size += getObj(im, i, j, markMat, c, bBox, cSum, cSum2);
+                    size += getObj(im, i, j, markMat, c, bBox, cSum, cSum2, coordSum);
                 }
             }
 
@@ -172,7 +176,9 @@ namespace AnalyzeTrafficLight
                     ColorStat cSum = new ColorStat();
                     ColorStat cSum2 = new ColorStat();
 
-                    int size = getObj(im, i, j, markMat, c, bBox, cSum, cSum2);
+                    ObjPoint coordSum = new ObjPoint();
+
+                    int size = getObj(im, i, j, markMat, c, bBox, cSum, cSum2, coordSum);
                     if (size == 0) continue;
 
                     AnalyzedObject obj = new AnalyzedObject();
@@ -192,6 +198,10 @@ namespace AnalyzeTrafficLight
 
                     obj.colorAv = cSum;
                     obj.colorStdev = cSum2;
+
+                    coordSum.x = (int)(coordSum.x / size);
+                    coordSum.y = (int)(coordSum.y / size);
+                    obj.centroid = coordSum;
 
                     objects.Add(obj);
 
