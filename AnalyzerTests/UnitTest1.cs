@@ -12,11 +12,12 @@ namespace AnalyzerTests
         [TestMethod]
         public void TestReds()
         {
-            //string[] files = Directory.GetFiles(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\reds\");
-            //foreach (var file in files)
-            //{
             Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\reds\WP_20140216_016.jpg"));
-        //    }
+        }
+        [TestMethod]
+        public void TestGreens()
+        {
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\greens\WP_20140216_011.jpg"));
         }
 
         //[TestMethod]
