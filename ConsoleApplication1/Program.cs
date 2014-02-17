@@ -13,11 +13,11 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            Analyzer analyzer = new Analyzer();
-            Bitmap orig = new Bitmap("C:/Users/Adi/Desktop/1.bmp");
-            //printProps(orig);
-            //AnalyzedState ans = analyzer.analyzeImage(orig);
-            Console.WriteLine(ans.ToString());
+        //    Analyzer analyzer = new Analyzer();
+        //    Bitmap orig = new Bitmap("C:/Users/Adi/Desktop/1.bmp");
+        //    //printProps(orig);
+        //    //AnalyzedState ans = analyzer.analyzeImage(orig);
+        //    Console.WriteLine(ans.ToString());
         }
     }
 }

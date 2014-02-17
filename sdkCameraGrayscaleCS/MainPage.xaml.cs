@@ -142,7 +142,7 @@ namespace sdkCameraGrayscaleCS
                     Deployment.Current.Dispatcher.BeginInvoke(delegate()
                     {
                         Analyzer a = new Analyzer();
-                        IEnumerable<AnalyzedObject> objectList = a.analyzeImage(wbmp.Pixels);
+                        IEnumerable<AnalyzedObject> objectList = a.analyzeImage(wbmp.Pixels, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
                         //var uri = string.Format("Assets/{0}.mp3", state);
                         //MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
                         //MyMedia.Play();

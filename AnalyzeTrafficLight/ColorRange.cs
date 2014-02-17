@@ -25,4 +25,22 @@ namespace AnalyzeTrafficLight
         }
 
     }
+
+    public class Color
+    {
+        public Color(byte r, byte g, byte b)
+        {
+            R=r;
+            G=g;
+            B=b;
+        }
+
+        public byte R { get; set; }
+        public byte G { get; set; }
+        public byte B { get; set; }
+
+        static public Color red = new Color(255,0,0);
+        static public Color green = new Color(0,255,0);
+    }
+
 }

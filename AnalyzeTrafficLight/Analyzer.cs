@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
 
 namespace AnalyzeTrafficLight
 {
@@ -87,9 +86,6 @@ namespace AnalyzeTrafficLight
 
         static Bitmap modify(Bitmap im, ColorRange redRange, ColorRange greenRange)
         {
-            Color red = Color.FromName("Red");
-            Color green = Color.FromName("Green");
-
             Bitmap res = new Bitmap(im.Width, im.Height);
 
             for (int i = 0; i < im.Width; ++i)
@@ -98,13 +94,13 @@ namespace AnalyzeTrafficLight
                 {
                     if (redRange.inRange(im.GetPixel(i, j)))
                     {
-                        res.SetPixel(i, j, red);
-                        dilate(im, ref res, red, i, j, 10);
+                        res.SetPixel(i, j, Color.red);
+                        dilate(im, ref res, Color.red, i, j, 10);
                     }
                     else if (greenRange.inRange(im.GetPixel(i, j)))
                     {
-                        res.SetPixel(i, j, green);
-                        dilate(im, ref res, green, i, j, 10);
+                        res.SetPixel(i, j, Color.green);
+                        dilate(im, ref res, Color.green, i, j, 10);
                     }
                 }
             }
@@ -187,19 +183,18 @@ namespace AnalyzeTrafficLight
                 if (first.color != obj.color) return 0;
             }
 
-            Color green = Color.FromName("Green");
-            if (first.color.R == green.R && first.color.G == green.G && first.color.B == green.B)
+            if (first.color.R == Color.green.R && first.color.G == Color.green.G && first.color.B == Color.green.B)
                 return AnalyzedState.Green;
             return AnalyzedState.Red;
         }
 
-
-        public IEnumerable<AnalyzedObject> analyzeImage(int[] bitmap)
+        public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height)
         {
-            return new List<AnalyzedObject>();
+            Bitmap bit = new Bitmap(argb, width, height);
+            return analyzeImage(bit); 
         }
 
-        public AnalyzedState analyzeImage(Bitmap orig)
+        public List<AnalyzedObject> analyzeImage(Bitmap orig)
         {
             ColorRange redRange = new ColorRange();
             redRange.redMin = 150;
@@ -223,7 +218,10 @@ namespace AnalyzeTrafficLight
 
             List<AnalyzedObject> result = new List<AnalyzedObject>();
             purgeObj(objects, result);
-            return decide(result);
+            decide(result);
+
+            return result;
+            
         }
         //public AnalyzedState process(int[] bitmap)
         //{

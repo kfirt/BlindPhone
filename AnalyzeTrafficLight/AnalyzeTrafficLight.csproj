@@ -86,6 +86,7 @@
     <Compile Include="AnalyzedObject.cs" />
     <Compile Include="AnalyzedState.cs" />
     <Compile Include="Analyzer.cs" />
+    <Compile Include="Bitmap.cs" />
     <Compile Include="ColorRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

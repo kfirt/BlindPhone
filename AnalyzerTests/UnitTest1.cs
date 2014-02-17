@@ -33,22 +33,22 @@ namespace AnalyzerTests
         private AnalyzedState runAnalyzer(string imagePath)
         {
             //Uri uri = new Uri(imagePath, UriKind.RelativeOrAbsolute);
-            Analyzer analyzer = new Analyzer();
+            //Analyzer analyzer = new Analyzer();
             
-            Bitmap image = new Bitmap(imagePath);
+            //Bitmap image = new Bitmap(imagePath);
 
-            // Loop through the image
-            int[] map = new int[(int)image.Width * (int)image.Height];
+            //// Loop through the image
+            //int[] map = new int[(int)image.Width * (int)image.Height];
             
-            for (int x = 0; x < image.Width; x++)
-            {
-                for (int y = 0; y < image.Height; y++)
-                {
-                    Color pixelColor = image.GetPixel(x, y);
-                    map[x*image.Width + y] = pixelColor.ToArgb();
-                }
-            }
-            //return analyzer.analyzeImage(map);
+            //for (int x = 0; x < image.Width; x++)
+            //{
+            //    for (int y = 0; y < image.Height; y++)
+            //    {
+            //        Color pixelColor = image.GetPixel(x, y);
+            //        map[x*image.Width + y] = pixelColor.ToArgb();
+            //    }
+            //}
+            ////return analyzer.analyzeImage(map);
             return AnalyzedState.Red;
         }
     }
