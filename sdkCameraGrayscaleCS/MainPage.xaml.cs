@@ -38,11 +38,11 @@ namespace sdkCameraGrayscaleCS
         // Variables
         PhotoCamera cam = new PhotoCamera();
         private static ManualResetEvent pauseFramesEvent = new ManualResetEvent(true);
-        //private WriteableBitmap wb;
+        private WriteableBitmap wb;
         //private Thread ARGBFramesThread;
         //private bool pumpARGBFrames;
         MediaElement MyMedia = new MediaElement();
-
+        private List<Rectangle> rects = new List<Rectangle>();
 
         // Constructor
         public MainPage()
@@ -96,10 +96,15 @@ namespace sdkCameraGrayscaleCS
         {
             if (e.Succeeded)
             {
+
                 this.Dispatcher.BeginInvoke(delegate()
                 {
-                    txtDebug.Text = "Camera initialized";
-                
+                    wb = new WriteableBitmap((int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
+                    this.MainImage.Visibility = Visibility.Visible;
+                    this.MainImage.Source = wb;
+                    cam.GetPreviewBufferArgb32(wb.Pixels);
+                    wb.Invalidate();
+
                     // creating timer instance
                     DispatcherTimer newTimer = new DispatcherTimer();
                     // timer interval specified as 1 second
@@ -118,7 +123,7 @@ namespace sdkCameraGrayscaleCS
         void PumpARGBFrames(Object sender, EventArgs args)
         {
             // Create capture buffer.
-            int[] ARGBPx = new int[(int)cam.PreviewResolution.Width * (int)cam.PreviewResolution.Height];
+
 
             try
             {
@@ -126,41 +131,73 @@ namespace sdkCameraGrayscaleCS
 
                 //while (pumpARGBFrames)
                 //{
-                    pauseFramesEvent.WaitOne();
-                    
-                    // Copies the current viewfinder frame into a buffer for further manipulation.
-                    WriteableBitmap wbmp = new WriteableBitmap((int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
-                    phCam.GetPreviewBufferArgb32(wbmp.Pixels);
-                    
-                    //MemoryStream ms = new MemoryStream();
-                    //wbmp.SaveJpeg(ms, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height, 0, 100);
+                pauseFramesEvent.WaitOne();
 
-                    //BitmapImage bmp = new BitmapImage();
-                    //bmp.SetSource(ms);
+                // Copies the current viewfinder frame into a buffer for further manipulation.
 
-                    pauseFramesEvent.Reset();
-                    Deployment.Current.Dispatcher.BeginInvoke(delegate()
+                //byte[] ycbcr = new byte[cam.YCbCrPixelLayout.RequiredBufferSize];
+
+                phCam.GetPreviewBufferArgb32(wb.Pixels);
+                //phCam.GetPreviewBufferYCbCr(ycbcr);
+                //MemoryStream ms = new MemoryStream();
+                //wbmp.SaveJpeg(ms, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height, 0, 100);
+
+                //BitmapImage bmp = new BitmapImage();
+                //bmp.SetSource(ms);
+
+                pauseFramesEvent.Reset();
+                Deployment.Current.Dispatcher.BeginInvoke(delegate()
+                {
+                    foreach (var oldRect in rects)
                     {
-                        Analyzer a = new Analyzer();
-                        string state = "Unknown";
-                        IEnumerable<AnalyzedObject> objectList = a.analyzeImage(wbmp.Pixels, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
-                        foreach (AnalyzedObject o in objectList)
-                            if (o.decision == true)
-                            {
+                        LayoutRoot.Children.Remove(oldRect);
+                    }
+                    rects.Clear();
 
-                                if (o.color.Equal(AnalyzeTrafficLight.Color.green))
-                                    state = "Green";
-                                else if (o.color.Equal(AnalyzeTrafficLight.Color.red))
-                                    state = "Red";
-                                else
-                                    state = "Unknown";
+                    Analyzer a = new Analyzer();
+                    string state = "Unknown";
+                    IEnumerable<AnalyzedObject> analyzedObjects = a.analyzeImage(wb.Pixels, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);//, ycbcr, cam.YCbCrPixelLayout.RequiredBufferSize);
+
+                    foreach (var analyzedObject in analyzedObjects)
+                    {
+                        var color = Colors.Yellow;
+                        if (analyzedObject.decision == true)
+                        {
+                            color = Colors.Blue;
+
+                            if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green)){
+                                state = "Green";
                             }
-                        var uri = string.Format("Assets/{0}.mp3", state);
-                        MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
-                        MyMedia.Play();
-            
-                        pauseFramesEvent.Set();
-                    });
+                            else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.red)){
+                                state = "Red";
+                            }
+                        }
+                        else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green)){
+                            color = Colors.Green;
+                        }
+                        else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.red)){
+                            color = Colors.Red;
+                        }
+                        
+                        Rectangle rect = new Rectangle();
+                        rect.Stroke = new SolidColorBrush(color);
+                        rect.Width = 30;
+                        rect.Height = 30;
+                        Canvas.SetLeft(rect, analyzedObject.leftTop.x);
+                        Canvas.SetTop(rect, analyzedObject.leftTop.y);
+                        LayoutRoot.Children.Add(rect);
+                        rects.Add(rect);
+                    }
+
+                    // Copy to WriteableBitmap.
+                    wb.Invalidate();
+
+                    var uri = string.Format("Assets/{0}.mp3", state);
+                    MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                    MyMedia.Play();
+
+                    pauseFramesEvent.Set();
+                });
                 //}
 
             }

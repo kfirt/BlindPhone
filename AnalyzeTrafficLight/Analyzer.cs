@@ -299,7 +299,7 @@ namespace AnalyzeTrafficLight
             return AnalyzedState.Red;
         }
 
-        public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height)
+        public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height) //, byte[] ycbcr, int ycbcrBufferSize)
         {
             Bitmap bit = new Bitmap(argb, width, height);
             return analyzeImage(bit); 
