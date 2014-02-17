@@ -332,7 +332,7 @@ namespace AnalyzeTrafficLight
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
 			detectObj(segImage, objects);
             sizeFilter(objects, origImage);
-			//blackBoxFilter(objects, origImage);
+			blackBoxFilter(objects, origImage);
             //decide(result);
 
             return objects;
