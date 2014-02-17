@@ -93,7 +93,7 @@ namespace AnalyzerDemo
                 System.Drawing.Color color;
                 if (analyzedObject.decision)
                 {
-                    color = System.Drawing.Color.DarkBlue;
+                    color = System.Drawing.Color.Yellow;
                 }
                 else
                 {
@@ -108,18 +108,18 @@ namespace AnalyzerDemo
                 });
             }
 
-            //pictureBox1.Invalidate();
+            pictureBox1.Invalidate();
         }
 
         static System.Drawing.Color convertColor(AnalyzeTrafficLight.Color color)
         {
             if (color.Equal(AnalyzeTrafficLight.Color.red))
             {
-                return System.Drawing.Color.Red;
+                return System.Drawing.Color.DarkRed;
             }
             else if (color.Equal(AnalyzeTrafficLight.Color.green))
             {
-                return System.Drawing.Color.Green;
+                return System.Drawing.Color.DarkGreen;
             }
             // Should not happend
             return System.Drawing.Color.Yellow;
