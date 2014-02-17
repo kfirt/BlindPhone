@@ -92,12 +92,14 @@ namespace AnalyzeTrafficLight
             {
                 for (int j = 0; j < im.Height; ++j)
                 {
-                    if (redRange.inRange(im.GetPixel(i, j)))
+                    //if (redRange.inRange(im.GetPixel(i, j)))
+                    if (im.GetPixel(i, j).isRed())
                     {
                         res.SetPixel(i, j, Color.red);
                         dilate(im, ref res, Color.red, i, j, 10);
                     }
-                    else if (greenRange.inRange(im.GetPixel(i, j)))
+                    //else if (greenRange.inRange(im.GetPixel(i, j)))
+                    else if (im.GetPixel(i, j).isGreenLight())
                     {
                         res.SetPixel(i, j, Color.green);
                         dilate(im, ref res, Color.green, i, j, 10);
@@ -299,9 +301,9 @@ namespace AnalyzeTrafficLight
             Bitmap segImage = modify(origImage, redRange, greenRange);
 
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
-			detectObj(origImage, objects);
+            detectObj(segImage, objects);
             sizeFilter(objects, origImage);
-			blackBoxFilter(objects, origImage);
+			//blackBoxFilter(objects, origImage);
             //decide(result);
 
             return objects;

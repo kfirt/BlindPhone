@@ -56,6 +56,20 @@ namespace AnalyzeTrafficLight
             if (other.B != B) return false;
             return true;
         }
+
+        public bool isGreenLight()
+        {
+            if ((double)R / (double)G > (1.0 / 3.5)) return false;
+            if ((double)R / (double)B > (1.0 / 3.5)) return false;
+            return true;
+        }
+
+        public bool isRed()
+        {
+            if ((double)G / (double)R > (1.0 / 8)) return false;
+            if ((double)B / (double)R > (1.0 / 8)) return false;
+            return true;
+        }
     }
 
 }
