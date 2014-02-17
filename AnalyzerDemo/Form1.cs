@@ -35,6 +35,7 @@ namespace AnalyzerDemo
 
                     // Create a new Bitmap object from the picture file on disk,
                     // and assign that to the PictureBox.Image property
+                    this.path = dlg.FileName;
                     pictureBox1.Image = new System.Drawing.Bitmap(dlg.FileName);
                 }
 
