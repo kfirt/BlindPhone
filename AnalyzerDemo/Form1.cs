@@ -47,7 +47,7 @@ namespace AnalyzerDemo
             //MessageBox.Show("Kfir");
         }
 
-        private List<Rectangle> rects = new List<Rectangle>();
+        private List<RectWithColor> rects = new List<RectWithColor>();
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -68,8 +68,7 @@ namespace AnalyzerDemo
 
             Analyzer analyzer = new Analyzer();
             var analyzedObjects = analyzer.analyzeImage(map, image.Width, image.Height);
-            this.rects = new List<Rectangle>();
-            //Graphics gf = pictureBox1.CreateGraphics();
+            this.rects.Clear();
 
             foreach (var analyzedObject in analyzedObjects)
             {
@@ -87,13 +86,39 @@ namespace AnalyzerDemo
                 int scaley1 = Convert.ToInt32(y1 * scaleY);
                 int scaley2 = Convert.ToInt32(y2 * scaleY);
 
+                System.Drawing.Color color;
+                if (analyzedObject.decision)
+                {
+                    color = System.Drawing.Color.DarkBlue;
+                }
+                else
+                {
+                    color = convertColor(analyzedObject.color);
+                }
+
                 //A circle with Red Color and 2 Pixel wide line
-                rects.Add(new Rectangle(scalex1, scaley1, scalex2 - scalex1, scaley2 - scaley1));
-                //gf.DrawRectangle(new Pen(System.Drawing.Color.Red, 2),
-                //    new Rectangle(scalex1, scaley1, scalex2 - scalex1, scaley2 - scaley1));
+                rects.Add(new RectWithColor
+                {
+                    Rectangle = new Rectangle(scalex1, scaley1, scalex2 - scalex1, scaley2 - scaley1),
+                    Pen = new Pen(color, 2)
+                });
             }
 
             //pictureBox1.Invalidate();
+        }
+
+        static System.Drawing.Color convertColor(AnalyzeTrafficLight.Color color)
+        {
+            if (color.Equal(AnalyzeTrafficLight.Color.red))
+            {
+                return System.Drawing.Color.Red;
+            }
+            else if (color.Equal(AnalyzeTrafficLight.Color.green))
+            {
+                return System.Drawing.Color.Green;
+            }
+            // Should not happend
+            return System.Drawing.Color.Yellow;
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
@@ -102,9 +127,13 @@ namespace AnalyzerDemo
             var g = e.Graphics;
             foreach (var rect in rects)
             {
-                g.DrawRectangle(new Pen(System.Drawing.Color.Red, 2),
-                    rect);
+                g.DrawRectangle(rect.Pen, rect.Rectangle);
             }
         }
+    }
+    public class RectWithColor
+    {
+        public Pen Pen { get; set; }
+        public Rectangle Rectangle { get; set; }
     }
 }
