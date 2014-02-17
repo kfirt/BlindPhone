@@ -13,12 +13,12 @@ namespace AnalyzerTests
         [TestMethod]
         public void TestReds()
         {
-            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Users\adieldar\Source\Repos\BlindPhone\AnalyzerTests\reds\WP_20140216_016.jpg"));
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_016.jpg"));
         }
         [TestMethod]
         public void TestGreens()
         {
-            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Users\adieldar\Source\Repos\BlindPhone\AnalyzerTests\greens\WP_20140216_011.jpg"));
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_011.jpg"));
         }
 
        

@@ -29,6 +29,10 @@ namespace AnalyzeTrafficLight
 
         public BoundingBox bBox = new BoundingBox();
 
+        public ColorStat colorStdev = new ColorStat();
 
+        public ColorStat colorAv = new ColorStat();
+
+        public ObjPoint centroid = new ObjPoint();
     }
 }
