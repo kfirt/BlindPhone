@@ -210,7 +210,7 @@ namespace AnalyzeTrafficLight
 
         }
 
-        static void purgeObj(List<AnalyzedObject> objects)
+        static void sizeFilter(List<AnalyzedObject> objects)
         {
             foreach (var obj in objects)
             {
@@ -220,6 +220,10 @@ namespace AnalyzeTrafficLight
             }
         }
 
+		static void blackBoxFilter(List<AnalyzedObject> objects)
+		{
+
+		}
         static AnalyzedState decide(List<AnalyzedObject> objects)
         {
             if (objects.Count == 0) return AnalyzedState.Unknown;
@@ -261,7 +265,8 @@ namespace AnalyzeTrafficLight
             Bitmap im = modify(orig, redRange, greenRange);
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
             detectObj(im, objects);
-            purgeObj(objects);
+            sizeFilter(objects);
+			blackBoxFilter(objects);
             //decide(result);
 
             return objects;
