@@ -13,12 +13,12 @@ namespace AnalyzerTests
         [TestMethod]
         public void TestReds()
         {
-            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\reds\WP_20140216_016.jpg"));
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Users\adieldar\Source\Repos\BlindPhone\AnalyzerTests\reds\WP_20140216_016.jpg"));
         }
         [TestMethod]
         public void TestGreens()
         {
-            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\greens\WP_20140216_011.jpg"));
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Users\adieldar\Source\Repos\BlindPhone\AnalyzerTests\greens\WP_20140216_011.jpg"));
         }
 
        
@@ -38,7 +38,7 @@ namespace AnalyzerTests
                 for (int y = 0; y < image.Height; y++)
                 {
                     System.Drawing.Color pixelColor = image.GetPixel(x, y);
-                    map[x*image.Width + y] = pixelColor.ToArgb();
+                    map[y*image.Width + x] = pixelColor.ToArgb();
                 }
             }
            
@@ -47,7 +47,8 @@ namespace AnalyzerTests
                 if (o.decision == true)
                 {
                     if (o.color.Equal(Color.green)) return AnalyzedState.Green;
-                    if (o.color.Equal(Color.red)) return AnalyzedState.Red;
+                    else if (o.color.Equal(Color.red)) return AnalyzedState.Red;
+                    else return AnalyzedState.Unknown; 
                 }
             return AnalyzedState.Unknown; 
         }
