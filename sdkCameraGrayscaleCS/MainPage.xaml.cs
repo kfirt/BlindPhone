@@ -28,6 +28,7 @@ using System.IO;
 using Microsoft.Devices;
 using System.Windows.Media.Imaging;
 using System.Threading;
+using AnalyzeTrafficLight;
 
 
 namespace sdkCameraGrayscaleCS
@@ -141,10 +142,10 @@ namespace sdkCameraGrayscaleCS
                     Deployment.Current.Dispatcher.BeginInvoke(delegate()
                     {
                         Analyzer a = new Analyzer();
-                        var state = a.process(wbmp.Pixels);
-                        var uri = string.Format("Assets/{0}.mp3", state);
-                        MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
-                        MyMedia.Play();
+                        IEnumerable<AnalyzedObject> objectList = a.analyzeImage(wbmp.Pixels);
+                        //var uri = string.Format("Assets/{0}.mp3", state);
+                        //MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                        //MyMedia.Play();
             
                         pauseFramesEvent.Set();
                     });
@@ -159,17 +160,6 @@ namespace sdkCameraGrayscaleCS
                     txtDebug.Text = e.Message;
                 });
             }
-        }
-
-        void OnTimerTick(Object sender, EventArgs args)
-        {
-            Analyzer a = new Analyzer();
-            var state = a.process(null);
-            var uri = string.Format("Assets/{0}.mp3", state);
-            MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
-            MyMedia.Play();
-             
-
         }
     }
 }

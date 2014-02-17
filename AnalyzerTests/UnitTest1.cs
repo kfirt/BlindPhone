@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using sdkCameraGrayscaleCS;
 using System.Drawing;
 using System.IO;
+using AnalyzeTrafficLight;
 
 namespace AnalyzerTests
 {
@@ -47,9 +48,8 @@ namespace AnalyzerTests
                     map[x*image.Width + y] = pixelColor.ToArgb();
                 }
             }
-            return analyzer.process(map);
-            //return AnalyzedState.Green;
-
+            //return analyzer.analyzeImage(map);
+            return AnalyzedState.Red;
         }
     }
 }

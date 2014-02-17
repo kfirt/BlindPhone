@@ -55,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AnalyzeTrafficLight\AnalyzeTrafficLight.csproj">
+      <Project>{2f9310fa-a1aa-4d67-b009-5e68a7cc9dcd}</Project>
+      <Name>AnalyzeTrafficLight</Name>
+    </ProjectReference>
     <ProjectReference Include="..\sdkCameraGrayscaleCS\sdkCameraGrayscaleCS.csproj">
       <Project>{8624fc18-f728-4ddd-a0f9-5735b0f0f401}</Project>
       <Name>sdkCameraGrayscaleCS</Name>
