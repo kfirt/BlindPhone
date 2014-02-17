@@ -103,7 +103,7 @@ namespace sdkCameraGrayscaleCS
                     // creating timer instance
                     DispatcherTimer newTimer = new DispatcherTimer();
                     // timer interval specified as 1 second
-                    newTimer.Interval = TimeSpan.FromSeconds(5);
+                    newTimer.Interval = TimeSpan.FromSeconds(4);
                     // Sub-routine OnTimerTick will be called at every 1 second
                     //newTimer.Tick += OnTimerTick;
                     newTimer.Tick += PumpARGBFrames;
@@ -142,10 +142,22 @@ namespace sdkCameraGrayscaleCS
                     Deployment.Current.Dispatcher.BeginInvoke(delegate()
                     {
                         Analyzer a = new Analyzer();
+                        string state = "Unknown";
                         IEnumerable<AnalyzedObject> objectList = a.analyzeImage(wbmp.Pixels, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
-                        //var uri = string.Format("Assets/{0}.mp3", state);
-                        //MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
-                        //MyMedia.Play();
+                        foreach (AnalyzedObject o in objectList)
+                            if (o.decision == true)
+                            {
+
+                                if (o.color.Equal(AnalyzeTrafficLight.Color.green))
+                                    state = "Green";
+                                else if (o.color.Equal(AnalyzeTrafficLight.Color.red))
+                                    state = "Red";
+                                else
+                                    state = "Unknown";
+                            }
+                        var uri = string.Format("Assets/{0}.mp3", state);
+                        MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                        MyMedia.Play();
             
                         pauseFramesEvent.Set();
                     });

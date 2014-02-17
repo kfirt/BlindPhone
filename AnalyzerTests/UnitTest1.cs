@@ -11,17 +11,64 @@ namespace AnalyzerTests
     public class UnitTest1
     {
         [TestMethod]
-        public void TestReds()
+        public void TestReds16()
         {
-            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Users\adieldar\Source\Repos\BlindPhone\AnalyzerTests\reds\WP_20140216_016.jpg"));
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_016.jpg"));
+
         }
         [TestMethod]
-        public void TestGreens()
+        public void TestReds17()
         {
-            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Users\adieldar\Source\Repos\BlindPhone\AnalyzerTests\greens\WP_20140216_011.jpg"));
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_017.jpg"));
+
+        }
+        [TestMethod]
+        public void TestReds18()
+        {
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_018.jpg"));
+
+        }
+        [TestMethod]
+        public void TestReds40()
+        {
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_040.jpg"));
+
+        }
+        
+        // green tests 
+        [TestMethod]
+        public void TestGreens11()
+        {
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_011.jpg"));
+        }
+        [TestMethod]
+        public void TestGreens12()
+        {
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_012.jpg"));
+        }
+        [TestMethod]
+        public void TestGreens13()
+        {
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_013.jpg"));
         }
 
-       
+       // unknown tests
+        [TestMethod]
+        public void TestUnknown1()
+        {
+            Assert.AreEqual(AnalyzedState.Unknown, runAnalyzer(@"C:\Pics\Unknown\WP_20140216_001.jpg"));
+        }
+        [TestMethod]
+        public void TestUnknown2()
+        {
+            Assert.AreEqual(AnalyzedState.Unknown, runAnalyzer(@"C:\Pics\Unknown\WP_20140216_002.jpg"));
+        }
+        [TestMethod]
+        public void TestUnknown3()
+        {
+            Assert.AreEqual(AnalyzedState.Unknown, runAnalyzer(@"C:\Pics\Unknown\WP_20140216_003.jpg"));
+        }
+
 
         private AnalyzedState runAnalyzer(string imagePath)
         {
