@@ -34,13 +34,41 @@ namespace AnalyzerTests
             Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_040.jpg"));
 
         }
+        
+        // green tests 
         [TestMethod]
-        public void TestGreens()
+        public void TestGreens11()
         {
             Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_011.jpg"));
         }
+        [TestMethod]
+        public void TestGreens12()
+        {
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_012.jpg"));
+        }
+        [TestMethod]
+        public void TestGreens13()
+        {
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_013.jpg"));
+        }
 
-       
+       // unknown tests
+        [TestMethod]
+        public void TestUnknown1()
+        {
+            Assert.AreEqual(AnalyzedState.Unknown, runAnalyzer(@"C:\Pics\Unknown\WP_20140216_001.jpg"));
+        }
+        [TestMethod]
+        public void TestUnknown2()
+        {
+            Assert.AreEqual(AnalyzedState.Unknown, runAnalyzer(@"C:\Pics\Unknown\WP_20140216_002.jpg"));
+        }
+        [TestMethod]
+        public void TestUnknown3()
+        {
+            Assert.AreEqual(AnalyzedState.Unknown, runAnalyzer(@"C:\Pics\Unknown\WP_20140216_003.jpg"));
+        }
+
 
         private AnalyzedState runAnalyzer(string imagePath)
         {
