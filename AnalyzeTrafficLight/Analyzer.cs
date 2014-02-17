@@ -164,13 +164,13 @@ namespace AnalyzeTrafficLight
 
         }
 
-        static void purgeObj(List<AnalyzedObject> objects, List<AnalyzedObject> result)
+        static void purgeObj(List<AnalyzedObject> objects)
         {
             foreach (var obj in objects)
             {
                 if (obj.size < 200) continue;
                 if (obj.size > 600) continue;
-                result.Add(obj);
+                obj.decision = true;
             }
         }
 
@@ -215,12 +215,10 @@ namespace AnalyzeTrafficLight
             Bitmap im = modify(orig, redRange, greenRange);
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
             detectObj(im, objects);
+            purgeObj(objects);
+            //decide(result);
 
-            List<AnalyzedObject> result = new List<AnalyzedObject>();
-            purgeObj(objects, result);
-            decide(result);
-
-            return result;
+            return objects;
             
         }
         //public AnalyzedState process(int[] bitmap)

@@ -41,6 +41,14 @@ namespace AnalyzeTrafficLight
 
         static public Color red = new Color(255,0,0);
         static public Color green = new Color(0,255,0);
+
+        public bool Equal(Color other)
+        {
+            if (other.R != R) return false;
+            if (other.G != G) return false;
+            if (other.B != B) return false;
+            return true;
+        }
     }
 
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using sdkCameraGrayscaleCS;
-using System.Drawing;
 using System.IO;
 using AnalyzeTrafficLight;
 using System.Collections.Generic; 
@@ -44,12 +43,13 @@ namespace AnalyzerTests
             }
            
             List<AnalyzedObject> objectList = analyzer.analyzeImage(map, image.Width, image.Height); 
-            //foreach (AnalyzedObject o in objectList)
-                //if (o.decision == true)
-                //{
-                //    return o.color;  
-                //}
-            return AnalyzedState.Red; 
+            foreach (AnalyzedObject o in objectList)
+                if (o.decision == true)
+                {
+                    if (o.color.Equal(Color.green)) return AnalyzedState.Green;
+                    if (o.color.Equal(Color.red)) return AnalyzedState.Red;
+                }
+            return AnalyzedState.Unknown; 
         }
     }
 }
