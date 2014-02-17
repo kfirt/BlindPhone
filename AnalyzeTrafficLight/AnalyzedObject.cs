@@ -14,8 +14,8 @@ namespace AnalyzeTrafficLight
 
     public class BoundingBox
     {
-        public ObjPoint leftTop = new ObjPoint();
-        public ObjPoint rightBottom = new ObjPoint();
+        public ObjPoint topLeft = new ObjPoint();
+        public ObjPoint bottomRight = new ObjPoint();
     }
 
     public class AnalyzedObject

@@ -124,10 +124,10 @@ namespace AnalyzeTrafficLight
             int size = 1;
 
             // set bounding box
-            if (x < bBox.leftTop.x) bBox.leftTop.x = x;
-            if (x > bBox.rightBottom.x) bBox.rightBottom.x = x;
-            if (y < bBox.leftTop.y) bBox.leftTop.y = y;
-            if (y > bBox.rightBottom.y) bBox.rightBottom.y = y;
+            if (x < bBox.topLeft.x) bBox.topLeft.x = x;
+            if (x > bBox.bottomRight.x) bBox.bottomRight.x = x;
+            if (y < bBox.topLeft.y) bBox.topLeft.y = y;
+            if (y > bBox.bottomRight.y) bBox.bottomRight.y = y;
 
             // set sums
             cSum.R += thisP.R;
@@ -168,10 +168,10 @@ namespace AnalyzeTrafficLight
 
                     // we are on a non white pixel
                     BoundingBox bBox = new BoundingBox();
-                    bBox.leftTop.x = 10000;
-                    bBox.leftTop.y = 10000;
-                    bBox.rightBottom.x = 0;
-                    bBox.rightBottom.y = 0;
+                    bBox.topLeft.x = 10000;
+                    bBox.topLeft.y = 10000;
+                    bBox.bottomRight.x = 0;
+                    bBox.bottomRight.y = 0;
 
                     ColorStat cSum = new ColorStat();
                     ColorStat cSum2 = new ColorStat();
@@ -182,6 +182,8 @@ namespace AnalyzeTrafficLight
                     if (size == 0) continue;
 
                     AnalyzedObject obj = new AnalyzedObject();
+					obj.decision = true;
+
                     obj.leftTop.x = i;
                     obj.leftTop.y = j;
                     obj.size = size;
@@ -214,15 +216,43 @@ namespace AnalyzeTrafficLight
         {
             foreach (var obj in objects)
             {
-                if (obj.size < 200) continue;
-                if (obj.size > 600) continue;
-                obj.decision = true;
-            }
+                if (obj.size < 200)
+					obj.decision = false;
+                if (obj.size > 600)
+					obj.decision = false;
+			}
         }
 
-		static void blackBoxFilter(List<AnalyzedObject> objects)
+		static void blackBoxFilter(List<AnalyzedObject> objects, Bitmap origImage)
 		{
+			foreach (var obj in objects)
+			{
+				
+				int startX = Math.Max(0, obj.bBox.topLeft.x);
+				int endX = Math.Min(origImage.Width, obj.bBox.bottomRight.x);
+				int startY = Math.Max(0, obj.bBox.topLeft.y);
+				int endY = Math.Min(origImage.Height, obj.bBox.bottomRight.y);
+				int n = 2 * (endX - startX + endY - startY);
+				int tmp = 0;
+				int sr = 0, sg = 0, sb = 0;
+				for (int x = startX; x <= endX; x++)
+				{
+					for (int y = startY; y <= endY; y++)
+					{
+						tmp++;
+						Color c = origImage.GetPixel(x, y);
+						sr += c.R;
+						sg += c.G;
+						sb += c.B;
+					}
+				}
+				sr /= n;
+				sg /= n;
+				sb /= n;
 
+				if (sr > 80 || sg > 80 || sb > 80)
+					obj.decision = false;
+			}
 		}
         static AnalyzedState decide(List<AnalyzedObject> objects)
         {
@@ -244,7 +274,7 @@ namespace AnalyzeTrafficLight
             return analyzeImage(bit); 
         }
 
-        public List<AnalyzedObject> analyzeImage(Bitmap orig)
+        public List<AnalyzedObject> analyzeImage(Bitmap origImage)
         {
             ColorRange redRange = new ColorRange();
             redRange.redMin = 150;
@@ -262,11 +292,13 @@ namespace AnalyzeTrafficLight
             greenRange.blueMin = 200;
             greenRange.blueMax = 256;
 
-            Bitmap im = modify(orig, redRange, greenRange);
+            Bitmap segImage = modify(origImage, redRange, greenRange);
+
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
-            detectObj(im, objects);
+            detectObj(segImage, objects);
+
             sizeFilter(objects);
-			blackBoxFilter(objects);
+			blackBoxFilter(objects, origImage);
             //decide(result);
 
             return objects;
