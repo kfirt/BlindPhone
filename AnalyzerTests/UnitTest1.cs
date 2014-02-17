@@ -11,9 +11,28 @@ namespace AnalyzerTests
     public class UnitTest1
     {
         [TestMethod]
-        public void TestReds()
+        public void TestReds16()
         {
             Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_016.jpg"));
+
+        }
+        [TestMethod]
+        public void TestReds17()
+        {
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_017.jpg"));
+
+        }
+        [TestMethod]
+        public void TestReds18()
+        {
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_018.jpg"));
+
+        }
+        [TestMethod]
+        public void TestReds40()
+        {
+            Assert.AreEqual(AnalyzedState.Red, runAnalyzer(@"C:\Pics\Red\WP_20140216_040.jpg"));
+
         }
         [TestMethod]
         public void TestGreens()
