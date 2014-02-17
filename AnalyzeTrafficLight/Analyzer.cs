@@ -234,24 +234,49 @@ namespace AnalyzeTrafficLight
 			foreach (var obj in objects)
 			{
 				
+				if (obj.decision == false)
+					continue;
+
 				int startX = Math.Max(0, obj.bBox.topLeft.x);
 				int endX = Math.Min(origImage.Width, obj.bBox.bottomRight.x);
 				int startY = Math.Max(0, obj.bBox.topLeft.y);
 				int endY = Math.Min(origImage.Height, obj.bBox.bottomRight.y);
-				int n = 2 * (endX - startX + endY - startY);
-				int tmp = 0;
+				int n = 0;
 				int sr = 0, sg = 0, sb = 0;
+
 				for (int x = startX; x <= endX; x++)
 				{
+					Color c = origImage.GetPixel(x, startY);
+					sr += c.R;
+					sg += c.G;
+					sb += c.B;
+					n++;
+				}
+				for (int x = startX; x <= endX; x++)
+				{
+					Color c = origImage.GetPixel(x, endY);
+					sr += c.R;
+					sg += c.G;
+					sb += c.B;
+					n++;
+				}
 					for (int y = startY; y <= endY; y++)
 					{
-						tmp++;
-						Color c = origImage.GetPixel(x, y);
+					Color c = origImage.GetPixel(startX, y);
 						sr += c.R;
 						sg += c.G;
 						sb += c.B;
+					n++;
 					}
+				for (int y = startY; y <= endY; y++)
+				{
+					Color c = origImage.GetPixel(endX, y);
+					sr += c.R;
+					sg += c.G;
+					sb += c.B;
+					n++;
 				}
+
 				sr /= n;
 				sg /= n;
 				sb /= n;
@@ -301,7 +326,7 @@ namespace AnalyzeTrafficLight
             Bitmap segImage = modify(origImage, redRange, greenRange);
 
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
-            detectObj(segImage, objects);
+			detectObj(segImage, objects);
             sizeFilter(objects, origImage);
 			//blackBoxFilter(objects, origImage);
             //decide(result);
