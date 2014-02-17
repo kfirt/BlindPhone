@@ -113,7 +113,7 @@ namespace AnalyzeTrafficLight
         static int getObj(Bitmap im, int x, int y, bool[,] markMat, int depth, Color c,
             BoundingBox bBox, ColorStat cSum, ColorStat cSum2, ObjPoint coordSum)
         {
-            if (depth > 900) return 1;
+            if (depth > 3000) return 1;
             if (y < 0 || y >= im.Height || x < 0 || x >= im.Width)
                 return 0;
             if (markMat[x, y])
@@ -221,7 +221,7 @@ namespace AnalyzeTrafficLight
         {
 			double size = origImage.Width * origImage.Height;
             int min = (int)((1.0 / 35520.0) * size);
-            int max = (int)((1.0 / 11840.0) * size);
+            int max = 7000; // (int)((1.0 / 11840.0) * size);
             
             foreach (var obj in objects)
             {
@@ -321,18 +321,18 @@ namespace AnalyzeTrafficLight
 
             ColorRange greenRange = new ColorRange();
             greenRange.redMin = 0;
-            greenRange.redMax = 100;
-            greenRange.greenMin = 200;
-            greenRange.greenMax = 256;
-            greenRange.blueMin = 200;
-            greenRange.blueMax = 256;
+            greenRange.redMax = 50;
+            greenRange.greenMin = 90;
+            greenRange.greenMax = 130;
+            greenRange.blueMin = 0;
+            greenRange.blueMax = 60;
 
             Bitmap segImage = modify(origImage, redRange, greenRange);
 
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
 			detectObj(segImage, objects);
             sizeFilter(objects, origImage);
-			blackBoxFilter(objects, origImage);
+			//blackBoxFilter(objects, origImage);
             //decide(result);
 
             return objects;
