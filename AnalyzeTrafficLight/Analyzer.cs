@@ -56,7 +56,7 @@ namespace AnalyzeTrafficLight
         }
 
 
-        static void dilate(Bitmap orig, ref Bitmap res, Color paint, int x, int y, int w, byte[,] idMat, byte currId)
+        static void dilate(Bitmap orig, ref Bitmap res, Color paint, int x, int y, int w, int[,] idMat, int currId)
         {
             Color pixel = orig.GetPixel(x, y);
             ColorRange range = new ColorRange();
@@ -87,7 +87,7 @@ namespace AnalyzeTrafficLight
             }
         }
 
-        static void setId(Bitmap im, byte[,] idMat, ref byte currId, int x, int y)
+        static void setId(Bitmap im, int[,] idMat, ref int currId, int x, int y)
         {
             if (idMat[x-1,y] != 0)
             {
@@ -113,10 +113,10 @@ namespace AnalyzeTrafficLight
             idMat[x, y] = currId;
         }
 
-        static Bitmap modify(Bitmap im, ColorRange redRange, ColorRange greenRange, byte[,] idMat, ref byte currId)
+        static Bitmap modify(Bitmap im, ColorRange redRange, ColorRange greenRange, int[,] idMat, ref int currId)
         {
             Bitmap res = new Bitmap(im.Width, im.Height);
-
+ 
             for (int i = 1; i < im.Width-1; ++i)
             {
                 for (int j = 1; j < im.Height-1; ++j)
@@ -405,7 +405,7 @@ namespace AnalyzeTrafficLight
             return AnalyzedState.Red;
         }
 
-        public void createIdLookup(byte[,] idMat, int Width, int Height, byte[] lookup, ref byte currId)
+        public void createIdLookup(int[,] idMat, int Width, int Height, int[] lookup, ref int currId)
         {
             bool[,] groupConn = new bool[currId + 1, currId + 1];
 
@@ -438,7 +438,7 @@ namespace AnalyzeTrafficLight
                 }
             }
 
-            byte newId = 0;
+            int newId = 0;
             for (int i = 1; i <= currId; ++i)
             {
                 if (lookup[i] == 0)
@@ -456,7 +456,7 @@ namespace AnalyzeTrafficLight
             currId = newId;
         }
 
-        public void fixIds(byte[,] idMat, int Width, int Height, byte[] lookup)
+        public void fixIds(int[,] idMat, int Width, int Height, int[] lookup)
         {
             for (int i = 0; i < Width; ++i)
             {
@@ -488,14 +488,14 @@ namespace AnalyzeTrafficLight
             return obj;
         }
 
-        public void findObjects(Bitmap im, byte[,] idMat, AnalyzedObject[] tmpObj)
+        public void findObjects(Bitmap im, int[,] idMat, AnalyzedObject[] tmpObj)
         {
             for (int i = 0; i < im.Width; ++i)
             {
                 for (int j = 0; j < im.Height; ++j)
                 {
                     if (idMat[i, j] == 0) continue;
-                    byte index = idMat[i, j];
+                    int index = idMat[i, j];
                     if (tmpObj[index] == null)
                     {
                         tmpObj[index] = createInitObj();
@@ -539,11 +539,11 @@ namespace AnalyzeTrafficLight
             greenRange.blueMin = 50;
             greenRange.blueMax = 180;
 
-            byte[,] idMat = new byte[origImage.Width, origImage.Height];
-            byte currId = 0;
+            int[,] idMat = new int[origImage.Width, origImage.Height];
+            int currId = 0;
             Bitmap segImage = modify(origImage, redRange, greenRange, idMat, ref currId);
 
-            byte[] lookup = new byte[currId + 1];
+            int[] lookup = new int[currId + 1];
             createIdLookup(idMat, segImage.Width, segImage.Height, lookup, ref currId);
             fixIds(idMat, segImage.Width, segImage.Height, lookup);
 
@@ -551,7 +551,7 @@ namespace AnalyzeTrafficLight
             AnalyzedObject[] tmpObj = new AnalyzedObject[currId + 1];
             findObjects(segImage, idMat, tmpObj);
 
-            byte count = 1;
+            int count = 1;
             for (int i = 1; i <= currId; ++i)
             {
                 if (tmpObj[i] == null) continue;
