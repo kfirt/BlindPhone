@@ -45,6 +45,7 @@ namespace sdkCameraGrayscaleCS
         //private bool pumpARGBFrames;
         MediaElement MyMedia = new MediaElement();
         private List<Rectangle> rects = new List<Rectangle>();
+        private int WaitBetweenPics = 5;
 
         // Constructor
         public MainPage()
@@ -102,20 +103,19 @@ namespace sdkCameraGrayscaleCS
                 this.Dispatcher.BeginInvoke(delegate()
                 {
                     //wb = new WriteableBitmap((int)cam.Resolution.Width, (int)cam.Resolution.Height);
-                    wb = new WriteableBitmap((int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
+                    wb = new WriteableBitmap((int)cam.Resolution.Width, (int)cam.Resolution.Height);
                     this.MainImage.Visibility = Visibility.Visible;
                     this.MainImage.Source = wb;
                     cam.CaptureImageAvailable += new EventHandler<ContentReadyEventArgs>(cameraCaptureTask_Completed);
-                    //cam.GetPreviewBufferArgb32(wb.Pixels);
-                    //wb.Invalidate();
+                   
                     cam.FlashMode = FlashMode.Off;
-                    
+
                     PumpARGBFrames(null, null);
 
                     // creating timer instance
                     DispatcherTimer newTimer = new DispatcherTimer();
                     // timer interval specified as 1 second
-                    newTimer.Interval = TimeSpan.FromSeconds(5);
+                    newTimer.Interval = TimeSpan.FromSeconds(WaitBetweenPics);
                     // Sub-routine OnTimerTick will be called at every 1 second
                     //newTimer.Tick += OnTimerTick;
                     newTimer.Tick += PumpARGBFrames;
@@ -126,6 +126,90 @@ namespace sdkCameraGrayscaleCS
             }
         }
 
+        private string SavePictures(MemoryStream ms)
+        {
+            ms.Seek(0, SeekOrigin.Begin);
+            var bitmapImage = new BitmapImage();
+            bitmapImage.SetSource(ms);
+            WriteableBitmap wbp = new WriteableBitmap(bitmapImage);
+
+            string time = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string filename = "BlindPhone_" + time + ".jpg";
+
+            using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename,
+                       FileMode.Create, FileAccess.Write))
+                {
+                    wbp.SaveJpeg(targetStream, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 0, 100);
+                }
+            }
+            return filename;
+
+            // Save photo as JPEG to the local folder.
+            //using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+            //{
+            //    using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename + ".ARGB",
+            //           FileMode.Create, FileAccess.Write))
+            //    {
+            //        // Initialize the buffer for 4KB disk pages.
+            //        byte[] result = new byte[wbp.Pixels.Length * sizeof(int)];
+            //        Buffer.BlockCopy(wbp.Pixels, 0, result, 0, result.Length);
+
+            //        targetStream.Write(result, 0, result.Length);
+
+            //        //// Initialize the buffer for 4KB disk pages.
+            //        //byte[] readBuffer = new byte[4096];
+            //        //int bytesRead = -1;
+
+            //        //// Copy the image to the local folder. 
+            //        //while ((bytesRead = e.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
+            //        //{
+            //        //    targetStream.Write(readBuffer, 0, bytesRead);
+            //        //}
+            //    }
+            //}
+
+
+            //ms.Seek(0, SeekOrigin.Begin);
+            //wb.SetSource(ms);
+            ////cam.GetPreviewBufferArgb32(wb.Pixels);
+            //// Copy to WriteableBitmap.
+            //wb.Invalidate();
+            ////});
+
+
+        }
+        private void GenerateListofRectangles(IEnumerable<AnalyzedObject> analyzedObjects)
+        {
+            foreach (var analyzedObject in analyzedObjects)
+            {
+                var color = Colors.Blue;
+                if (analyzedObject.decision == true)
+                {
+                    color = Colors.Yellow;
+                }
+                else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green))
+                {
+                    color = Colors.Red;
+                }
+                else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.red))
+                {
+                    color = Colors.Green;
+                }
+
+                int rectx = Convert.ToInt32(analyzedObject.bBox.topLeft.y * this.MainImage.Height / cam.Resolution.Height);
+                int recty = Convert.ToInt32(analyzedObject.bBox.topLeft.x * this.MainImage.Width / cam.Resolution.Width);
+                Rectangle rect = new Rectangle();
+                rect.Stroke = new SolidColorBrush(color);
+                rect.Width = 15;
+                rect.Height = 15;
+                this.LayoutRoot.Children.Add(rect);
+                Canvas.SetLeft(rect, recty);
+                Canvas.SetTop(rect, rectx);
+                rects.Add(rect);
+            }
+        }
         void cameraCaptureTask_Completed(object sender, ContentReadyEventArgs e)
         {
             MemoryStream ms = new MemoryStream();
@@ -134,63 +218,8 @@ namespace sdkCameraGrayscaleCS
                 e.ImageStream.Seek(0, SeekOrigin.Begin);
                 e.ImageStream.CopyTo(ms);
 
-                // Save photo to the media library camera roll.
-                e.ImageStream.Seek(0, SeekOrigin.Begin);
-                MediaLibrary library = new MediaLibrary();
-                library.SavePictureToCameraRoll("CameraRoll.jpg", e.ImageStream);
-
                 Deployment.Current.Dispatcher.BeginInvoke(delegate()
                 {
-                    // Set the position of the stream back to start
-                    ms.Seek(0, SeekOrigin.Begin);
-                    var bitmapImage = new BitmapImage();
-                    bitmapImage.SetSource(ms);
-                    WriteableBitmap wbp = new WriteableBitmap(bitmapImage);
-
-                    string time = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    string filename = "BlindPhone_" + time;
-
-                    using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
-                    {
-                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename + ".jpg", FileMode.Create, FileAccess.Write))
-                        {
-                            wbp.SaveJpeg(targetStream, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 0, 100);
-                        }
-                    }
-
-                    // Save photo as JPEG to the local folder.
-                    using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
-                    {
-                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename + ".ARGB", FileMode.Create, FileAccess.Write))
-                        {
-                            // Initialize the buffer for 4KB disk pages.
-                            byte[] result = new byte[wbp.Pixels.Length * sizeof(int)];
-                            Buffer.BlockCopy(wbp.Pixels, 0, result, 0, result.Length);
-
-                            targetStream.Write(result, 0, result.Length);
-
-                            //// Initialize the buffer for 4KB disk pages.
-                            //byte[] readBuffer = new byte[4096];
-                            //int bytesRead = -1;
-
-                            //// Copy the image to the local folder. 
-                            //while ((bytesRead = e.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
-                            //{
-                            //    targetStream.Write(readBuffer, 0, bytesRead);
-                            //}
-                        }
-                    }
-
-
-                    ms.Seek(0, SeekOrigin.Begin);
-                    wb.SetSource(ms);
-                    //cam.GetPreviewBufferArgb32(wb.Pixels);
-                    // Copy to WriteableBitmap.
-                    wb.Invalidate();
-                    //});
-
-                    //Deployment.Current.Dispatcher.BeginInvoke(delegate()
-                    //{
                     try
                     {
                         foreach (var oldRect in rects)
@@ -199,48 +228,28 @@ namespace sdkCameraGrayscaleCS
                         }
                         rects.Clear();
 
-                        Analyzer a = new Analyzer();
-                        IEnumerable<AnalyzedObject> analyzedObjects = a.analyzeImage(wb.Pixels, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);//, ycbcr, cam.YCbCrPixelLayout.RequiredBufferSize);
+                        string filename = SavePictures(ms); 
 
-                        string state = "Unknown";
-                        foreach (var analyzedObject in analyzedObjects)
-                        {
-                            var color = Colors.Blue;
-                            if (analyzedObject.decision == true)
-                            {
-                                color = Colors.Yellow;
-
-                                if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green))
-                                {
-                                    state = "Green";
-                                }
-                                else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.red))
-                                {
-                                    state = "Red";
-                                }
-                            }
-                            else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green))
-                            {
-                                color = Colors.Red;
-                            }
-                            else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.red))
-                            {
-                                color = Colors.Green;
-                            }
-
-                            int rectx = Convert.ToInt32(analyzedObject.leftTop.x * this.MainImage.Width / cam.PreviewResolution.Width);
-                            int recty = Convert.ToInt32(analyzedObject.leftTop.y * this.MainImage.Height / cam.PreviewResolution.Height);
-                            Rectangle rect = new Rectangle();
-                            rect.Stroke = new SolidColorBrush(color);
-                            rect.Width = 30;
-                            rect.Height = 30;
-                            this.LayoutRoot.Children.Add(rect);
-                            Canvas.SetLeft(rect, recty);
-                            Canvas.SetTop(rect, rectx);
-                            rects.Add(rect);
+                        using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+                        //string[] directories = isStore.GetDirectoryNames("*");
+                        //string[] files = isStore.GetFileNames("*");
+                        //string filename = "\\" + directories[0] + "\\BlindPhone_20140218165648" + ".jpg";
+                        using (IsolatedStorageFileStream sourceStream = isStore.OpenFile(filename, FileMode.Open)) { 
+                        //WriteableBitmap wbpFromJpg = new WriteableBitmap((int)cam.Resolution.Width, (int)cam.Resolution.Height);
+                        //wbpFromJpg.LoadJpeg(sourceStream);
+                            sourceStream.Seek(0, SeekOrigin.Begin);
+                            wb.LoadJpeg(sourceStream);
+                            wb.Invalidate();
                         }
 
-                        var uri = string.Format("Assets/{0}.mp3", state);
+                        Analyzer a = new Analyzer();
+                        List<AnalyzedObject> analyzedObjects = a.analyzeImage(wb.Pixels,
+                                        (int)cam.Resolution.Width, (int)cam.Resolution.Height);//, ycbcr, cam.YCbCrPixelLayout.RequiredBufferSize);
+
+                        GenerateListofRectangles(analyzedObjects);
+
+                        AnalyzedState state_o = a.decide(analyzedObjects);
+                        var uri = string.Format("Assets/{0}.mp3", state_o.ToString());
                         MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
                         MyMedia.Play();
                     }
@@ -283,7 +292,7 @@ namespace sdkCameraGrayscaleCS
                 //phCam.GetPreviewBufferArgb32(wb.Pixels);
                 //phCam.GetPreviewBufferYCbCr(ycbcr);
                 //MemoryStream ms = new MemoryStream();
-                //wbmp.SaveJpeg(ms, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height, 0, 100);
+                //wbmp.SaveJpeg(ms, (int)cam.Resolution.Width, (int)cam.Resolution.Height, 0, 100);
 
                 //BitmapImage bmp = new BitmapImage();
                 //bmp.SetSource(ms);
