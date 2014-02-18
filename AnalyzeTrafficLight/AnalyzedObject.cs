@@ -20,6 +20,8 @@ namespace AnalyzeTrafficLight
 
     public class AnalyzedObject
     {
+        public byte id = 0;
+
         public ObjPoint leftTop = new ObjPoint();
         
         public int size { get; set; }
