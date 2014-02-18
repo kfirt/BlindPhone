@@ -14,6 +14,7 @@ namespace AnalyzerDemo
     public partial class Form1 : Form
     {
         string path = @"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\greens\WP_20140216_011.jpg";
+		System.Drawing.Bitmap bmp;
 
         public Form1()
         {
@@ -40,6 +41,8 @@ namespace AnalyzerDemo
                     // and assign that to the PictureBox.Image property
                     this.path = dlg.FileName;
                     pictureBox1.Image = new System.Drawing.Bitmap(dlg.FileName);
+					bmp = new System.Drawing.Bitmap(pictureBox1.Image);
+					this.FindForm().Text = this.path;
                 }
 
             }
@@ -133,7 +136,13 @@ namespace AnalyzerDemo
             {
                 g.DrawRectangle(rect.Pen, rect.Rectangle);
             }
-        }
+		}
+
+		private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+		{
+			System.Drawing.Color c = bmp.GetPixel(e.X, e.Y);
+			textBox1.Text = "X=" + e.X + ", Y=" + e.Y + "   R=" + c.R + ", G=" + c.G + ", B=" + c.B;
+		}
     }
     public class RectWithColor
     {
