@@ -13,6 +13,7 @@ namespace AnalyzeTrafficLight
 
         }
 
+        private double CropFromUp = 0.5; 
         static void printProps(Bitmap orig)
         {
             int redSum = 0;
@@ -518,7 +519,10 @@ namespace AnalyzeTrafficLight
         public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height)
         {
             // do the cutting here
+            double new_h = (double)height;
+            new_h = new_h * CropFromUp;
 
+            height =(int)new_h;
             return analyzeImageInternal(argb, width, height); 
         }
 

@@ -51,6 +51,11 @@ namespace AnalyzerTests
         {
             Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\Green\WP_20140216_013.jpg"));
         }
+        [TestMethod]
+        public void TestGreens14()
+        {
+            Assert.AreEqual(AnalyzedState.Green, runAnalyzer(@"C:\Pics\18-2-14\Green\WP_20140218_004.jpg"));
+        }
 
        // unknown tests
         [TestMethod]
