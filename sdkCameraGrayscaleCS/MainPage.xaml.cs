@@ -181,8 +181,7 @@ namespace sdkCameraGrayscaleCS
                             Canvas.SetTop(rect, rectx);
                             rects.Add(rect);
                         }
-
-
+                        
                         //var uri = string.Format("Assets/{0}.mp3", state);
                         //MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
                         //MyMedia.Play();

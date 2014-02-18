@@ -3,13 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PhoneApp1", "PhoneApp1\PhoneApp1.vbproj", "{BA00DF9A-D507-4FD2-B108-0175EAE1E210}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sdkCameraGrayscaleCS", "sdkCameraGrayscaleCS\sdkCameraGrayscaleCS.csproj", "{8624FC18-F728-4DDD-A0F9-5735B0F0F401}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyzerTests", "AnalyzerTests\AnalyzerTests.csproj", "{9FC22E0F-F915-4B8A-96E9-77997756F873}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApplication1\ConsoleApp.csproj", "{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyzeTrafficLight", "AnalyzeTrafficLight\AnalyzeTrafficLight.csproj", "{2F9310FA-A1AA-4D67-B009-5E68A7CC9DCD}"
 EndProject
@@ -25,24 +21,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|ARM.ActiveCfg = Debug|ARM
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|ARM.Build.0 = Debug|ARM
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|ARM.Deploy.0 = Debug|ARM
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|x86.ActiveCfg = Debug|x86
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|x86.Build.0 = Debug|x86
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Debug|x86.Deploy.0 = Debug|x86
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|ARM.ActiveCfg = Release|ARM
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|ARM.Build.0 = Release|ARM
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|ARM.Deploy.0 = Release|ARM
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|x86.ActiveCfg = Release|x86
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|x86.Build.0 = Release|x86
-		{BA00DF9A-D507-4FD2-B108-0175EAE1E210}.Release|x86.Deploy.0 = Release|x86
 		{8624FC18-F728-4DDD-A0F9-5735B0F0F401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8624FC18-F728-4DDD-A0F9-5735B0F0F401}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8624FC18-F728-4DDD-A0F9-5735B0F0F401}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
@@ -69,14 +47,6 @@ Global
 		{9FC22E0F-F915-4B8A-96E9-77997756F873}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9FC22E0F-F915-4B8A-96E9-77997756F873}.Release|ARM.ActiveCfg = Release|Any CPU
 		{9FC22E0F-F915-4B8A-96E9-77997756F873}.Release|x86.ActiveCfg = Release|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|ARM.ActiveCfg = Release|Any CPU
-		{A6D688F6-A2EF-4E12-87EF-8ECA593D1D26}.Release|x86.ActiveCfg = Release|Any CPU
 		{2F9310FA-A1AA-4D67-B009-5E68A7CC9DCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2F9310FA-A1AA-4D67-B009-5E68A7CC9DCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F9310FA-A1AA-4D67-B009-5E68A7CC9DCD}.Debug|ARM.ActiveCfg = Debug|ARM
