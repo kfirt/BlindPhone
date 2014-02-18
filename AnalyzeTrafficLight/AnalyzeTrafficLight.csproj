@@ -88,6 +88,7 @@
     <Compile Include="Analyzer.cs" />
     <Compile Include="Bitmap.cs" />
     <Compile Include="ColorRange.cs" />
+    <Compile Include="ConvColor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />

@@ -60,12 +60,13 @@ namespace AnalyzeTrafficLight
         {
             Color pixel = orig.GetPixel(x, y);
             ColorRange range = new ColorRange();
-            range.redMin = (int) (Math.Max(pixel.R - 20, 0));
-            range.redMax = (int) (Math.Min(pixel.R + 20, 255));
-			range.greenMin = (int) (Math.Max(pixel.G - 20, 0));
-            range.greenMax = (int) (Math.Min(pixel.G + 20, 255));
-            range.blueMin = (int) (Math.Max(pixel.B - 20, 0));
-            range.blueMax = (int) (Math.Min(pixel.B + 20, 255));
+			int delta = 30;
+            range.redMin = (int) (Math.Max(pixel.R - delta, 0));
+			range.redMax = (int)(Math.Min(pixel.R + delta, 255));
+			range.greenMin = (int)(Math.Max(pixel.G - delta, 0));
+			range.greenMax = (int)(Math.Min(pixel.G + delta, 255));
+			range.blueMin = (int)(Math.Max(pixel.B - delta, 0));
+			range.blueMax = (int)(Math.Min(pixel.B + delta, 255));
 
             int startX = Math.Max(0, x - w);
             int endX = Math.Min(orig.Width, x + w);
@@ -104,7 +105,7 @@ namespace AnalyzeTrafficLight
                 return;
             }
             if (idMat[x+1, y-1] != 0)
-            {
+        {
                 idMat[x, y] = idMat[x+1,y-1];
                 return;
             }
@@ -319,6 +320,65 @@ namespace AnalyzeTrafficLight
 					obj.decision = false;
 			}
 		}
+
+		//	This filter looks for black rectangle above/below the current object if it's green/red
+		static void blackOtherFilter(List<AnalyzedObject> objects, Bitmap origImage)
+		{
+
+			foreach (var obj in objects)
+			{
+
+				if (obj.decision == false)
+					continue;
+
+				int startY=0, endY=0;
+				int h = obj.bBox.bottomRight.y - obj.bBox.topLeft.y;
+				int dist = (int) (h / 2);
+				if(obj.color.R == Color.red.R)
+				{
+					startY = Math.Min(origImage.Height-1, obj.bBox.bottomRight.y + dist);
+					endY = Math.Min(origImage.Height-1, startY + h);
+				}
+				else	//	green
+				{
+					endY = Math.Max(0, obj.bBox.topLeft.y - dist);
+					startY = Math.Max(0, endY - h);
+		}
+
+				if(startY >= endY)
+				{
+					obj.decision = false;
+					continue;
+				}
+
+				int sr = 0, sg = 0, sb = 0;
+				int sr2 = 0, sg2 = 0, sb2 = 0;
+				int n = (endY - startY + 1) * (obj.bBox.bottomRight.x - obj.bBox.topLeft.x + 1);
+				for (int x = obj.bBox.topLeft.x; x <= obj.bBox.bottomRight.x; x++)
+				{
+					for (int y = startY; y <= endY; y++)
+					{
+						Color c = origImage.GetPixel(x, y);
+						sr += c.R;
+						sg += c.G;
+						sb += c.B;
+						sr2 += c.R * c.R;
+						sg2 += c.G * c.G;
+						sb2 += c.B * c.B;
+					}
+				}
+
+				sr /= n;	//	average
+				sg /= n;
+				sb /= n;
+				double stdr = Math.Sqrt(sr2 / n - sr * sr);		//	stdv
+				double stdg = Math.Sqrt(sg2 / n - sg * sg);
+				double stdb = Math.Sqrt(sb2 / n - sb * sb);
+
+				if (sr > 20 || sg > 20 || sb > 20 || stdr > 30 || stdg > 30 || stdb > 30)
+					obj.decision = false;
+			}
+		}
         static AnalyzedState decide(List<AnalyzedObject> objects)
         {
             if (objects.Count == 0) return AnalyzedState.Unknown;
@@ -462,10 +522,10 @@ namespace AnalyzeTrafficLight
             ColorRange greenRange = new ColorRange();
             greenRange.redMin = 0;
             greenRange.redMax = 50;
-            greenRange.greenMin = 90;
-            greenRange.greenMax = 130;
-            greenRange.blueMin = 0;
-            greenRange.blueMax = 60;
+            greenRange.greenMin = 120;
+            greenRange.greenMax = 256;
+            greenRange.blueMin = 50;
+            greenRange.blueMax = 180;
 
             byte[,] idMat = new byte[origImage.Width, origImage.Height];
             byte currId = 0;
@@ -486,8 +546,10 @@ namespace AnalyzeTrafficLight
             }
 
             //detectObj(segImage, objects);
-            sizeFilter(objects, origImage);
-			blackBoxFilter(objects, origImage);
+            
+            //sizeFilter(objects, origImage);
+			blackOtherFilter(objects, origImage);
+			//blackBoxFilter(objects, origImage);
             //decide(result);
 
             return objects;
