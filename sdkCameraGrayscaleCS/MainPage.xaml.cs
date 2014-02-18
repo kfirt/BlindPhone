@@ -141,37 +141,38 @@ namespace sdkCameraGrayscaleCS
                 MediaLibrary library = new MediaLibrary();
                 library.SavePictureToCameraRoll("CameraRoll.jpg", e.ImageStream);
 
-                // Set the position of the stream back to start
-                e.ImageStream.Seek(0, SeekOrigin.Begin);
-                var bitmapImage = new BitmapImage();
-                bitmapImage.SetSource(ms);
-                WriteableBitmap wbp = new WriteableBitmap(bitmapImage);
-
-                // Save photo as JPEG to the local folder.
-                using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
-                {
-                    using (IsolatedStorageFileStream targetStream = isStore.OpenFile("ARGBStream", FileMode.Create, FileAccess.Write))
-                    {
-                        // Initialize the buffer for 4KB disk pages.
-                        byte[] result = new byte[wbp.Pixels.Length * sizeof(int)];
-                        Buffer.BlockCopy(wbp.Pixels, 0, result, 0, result.Length);
-
-                        targetStream.Write(result, 0, result.Length);
-
-                        //// Initialize the buffer for 4KB disk pages.
-                        //byte[] readBuffer = new byte[4096];
-                        //int bytesRead = -1;
-
-                        //// Copy the image to the local folder. 
-                        //while ((bytesRead = e.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
-                        //{
-                        //    targetStream.Write(readBuffer, 0, bytesRead);
-                        //}
-                    }
-                }
-
                 Deployment.Current.Dispatcher.BeginInvoke(delegate()
                 {
+                    // Set the position of the stream back to start
+                    ms.Seek(0, SeekOrigin.Begin);
+                    var bitmapImage = new BitmapImage();
+                    bitmapImage.SetSource(ms);
+                    WriteableBitmap wbp = new WriteableBitmap(bitmapImage);
+
+                    // Save photo as JPEG to the local folder.
+                    using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+                    {
+                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile("ARGBStream", FileMode.Create, FileAccess.Write))
+                        {
+                            // Initialize the buffer for 4KB disk pages.
+                            byte[] result = new byte[wbp.Pixels.Length * sizeof(int)];
+                            Buffer.BlockCopy(wbp.Pixels, 0, result, 0, result.Length);
+
+                            targetStream.Write(result, 0, result.Length);
+
+                            //// Initialize the buffer for 4KB disk pages.
+                            //byte[] readBuffer = new byte[4096];
+                            //int bytesRead = -1;
+
+                            //// Copy the image to the local folder. 
+                            //while ((bytesRead = e.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
+                            //{
+                            //    targetStream.Write(readBuffer, 0, bytesRead);
+                            //}
+                        }
+                    }
+
+
                     //ms.Seek(0, SeekOrigin.Begin);
                     wb.SetSource(ms);
                     //cam.GetPreviewBufferArgb32(wb.Pixels);
