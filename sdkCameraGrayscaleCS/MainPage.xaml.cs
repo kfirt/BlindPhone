@@ -109,10 +109,8 @@ namespace sdkCameraGrayscaleCS
                     //cam.GetPreviewBufferArgb32(wb.Pixels);
                     //wb.Invalidate();
                     cam.FlashMode = FlashMode.Off;
-
+                    
                     PumpARGBFrames(null, null);
-
-
 
                     // creating timer instance
                     DispatcherTimer newTimer = new DispatcherTimer();
@@ -149,9 +147,12 @@ namespace sdkCameraGrayscaleCS
                     bitmapImage.SetSource(ms);
                     WriteableBitmap wbp = new WriteableBitmap(bitmapImage);
 
+                    string time = DateTime.Now.ToString("yyyyMMddHHmmss");
+                    string filename = "BlindPhone_" + time;
+
                     using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
                     {
-                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile("Wbp.jpg", FileMode.Create, FileAccess.Write))
+                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename + ".jpg", FileMode.Create, FileAccess.Write))
                         {
                             wbp.SaveJpeg(targetStream, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 0, 100);
                         }
@@ -160,7 +161,7 @@ namespace sdkCameraGrayscaleCS
                     // Save photo as JPEG to the local folder.
                     using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
                     {
-                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile("ARGBStream", FileMode.Create, FileAccess.Write))
+                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename + ".ARGB", FileMode.Create, FileAccess.Write))
                         {
                             // Initialize the buffer for 4KB disk pages.
                             byte[] result = new byte[wbp.Pixels.Length * sizeof(int)];
@@ -181,7 +182,7 @@ namespace sdkCameraGrayscaleCS
                     }
 
 
-                    //ms.Seek(0, SeekOrigin.Begin);
+                    ms.Seek(0, SeekOrigin.Begin);
                     wb.SetSource(ms);
                     //cam.GetPreviewBufferArgb32(wb.Pixels);
                     // Copy to WriteableBitmap.
@@ -239,9 +240,9 @@ namespace sdkCameraGrayscaleCS
                             rects.Add(rect);
                         }
 
-                        //var uri = string.Format("Assets/{0}.mp3", state);
-                        //MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
-                        //MyMedia.Play();
+                        var uri = string.Format("Assets/{0}.mp3", state);
+                        MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                        MyMedia.Play();
                     }
                     finally
                     {
