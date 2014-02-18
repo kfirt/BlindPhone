@@ -56,7 +56,7 @@ namespace AnalyzeTrafficLight
         }
 
 
-        static void dilate(Bitmap orig, ref Bitmap res, Color paint, int x, int y, int w)
+        static void dilate(Bitmap orig, ref Bitmap res, Color paint, int x, int y, int w, byte[,] idMat, byte currId)
         {
             Color pixel = orig.GetPixel(x, y);
             ColorRange range = new ColorRange();
@@ -76,33 +76,63 @@ namespace AnalyzeTrafficLight
             {
                 for (int j = startY; j < endY; ++j)
                 {
+                    if (idMat[i, j] != 0) continue;
                     if (range.inRange(orig.GetPixel(i, j)))
                     {
                         res.SetPixel(i, j, paint);
+                        idMat[i, j] = currId;
                     }
                 }
             }
         }
 
-        static Bitmap modify(Bitmap im, ColorRange redRange, ColorRange greenRange)
+        static void setId(Bitmap im, byte[,] idMat, ref byte currId, int x, int y)
+        {
+            if (idMat[x-1,y] != 0)
+            {
+                idMat[x,y] = idMat[x-1,y];
+                return;
+            }
+            if (idMat[x-1,y-1] != 0)
+            {
+                idMat[x,y] = idMat[x-1,y-1];
+                return;
+            }
+            if (idMat[x,y-1] != 0)
+            {
+                idMat[x,y] = idMat[x,y-1];
+                return;
+            }
+            if (idMat[x+1, y-1] != 0)
+            {
+                idMat[x, y] = idMat[x+1,y-1];
+                return;
+            }
+            ++currId;
+            idMat[x, y] = currId;
+        }
+
+        static Bitmap modify(Bitmap im, ColorRange redRange, ColorRange greenRange, byte[,] idMat, ref byte currId)
         {
             Bitmap res = new Bitmap(im.Width, im.Height);
 
-            for (int i = 0; i < im.Width; ++i)
+            for (int i = 1; i < im.Width-1; ++i)
             {
-                for (int j = 0; j < im.Height; ++j)
+                for (int j = 1; j < im.Height-1; ++j)
                 {
                     if (redRange.inRange(im.GetPixel(i, j)))
                     //if (im.GetPixel(i, j).isRed())
                     {
                         res.SetPixel(i, j, Color.red);
-                        dilate(im, ref res, Color.red, i, j, 10);
+                        setId(im, idMat, ref currId, i, j);
+                        dilate(im, ref res, Color.red, i, j, 10, idMat, currId);
                     }
                     else if (greenRange.inRange(im.GetPixel(i, j)))
                     //else if (im.GetPixel(i, j).isGreenLight())
                     {
                         res.SetPixel(i, j, Color.green);
-                        dilate(im, ref res, Color.green, i, j, 10);
+                        setId(im, idMat, ref currId, i, j);
+                        dilate(im, ref res, Color.green, i, j, 10, idMat, currId);
                     }
                 }
             }
@@ -303,6 +333,116 @@ namespace AnalyzeTrafficLight
             return AnalyzedState.Red;
         }
 
+        public void createIdLookup(byte[,] idMat, int Width, int Height, byte[] lookup, ref byte currId)
+        {
+            bool[,] groupConn = new bool[currId + 1, currId + 1];
+
+            for (int i = 1; i < Width-1; ++i)
+            {
+                for (int j = 1; j < Height-1; ++j)
+                {
+                    if (idMat[i, j] == 0) continue;
+
+                    if (idMat[i + 1, j] != 0)
+                    {
+                        groupConn[idMat[i, j], idMat[i + 1, j]] = true;
+                        groupConn[idMat[i+1, j], idMat[i, j]] = true;
+                    }
+                    if (idMat[i + 1, j+1] != 0)
+                    {
+                        groupConn[idMat[i, j], idMat[i + 1, j+1]] = true;
+                        groupConn[idMat[i + 1, j+1], idMat[i, j]] = true;
+                    }
+                    if (idMat[i, j+1] != 0)
+                    {
+                        groupConn[idMat[i, j], idMat[i, j+1]] = true;
+                        groupConn[idMat[i, j+1], idMat[i, j]] = true;
+                    }
+                    if (idMat[i-1, j + 1] != 0)
+                    {
+                        groupConn[idMat[i, j], idMat[i-1, j + 1]] = true;
+                        groupConn[idMat[i-1, j + 1], idMat[i, j]] = true;
+                    }
+                }
+            }
+
+            byte newId = 0;
+            for (int i = 1; i <= currId; ++i)
+            {
+                if (lookup[i] == 0)
+                {
+                    ++newId;
+                    lookup[i] = newId;
+                }
+                for (int j = 1; j <= currId; ++j)
+                {
+                    if (i == j) continue;
+                    if (groupConn[i, j] == false) continue;
+                    lookup[j] = lookup[i];
+                }
+            }
+            currId = newId;
+        }
+
+        public void fixIds(byte[,] idMat, int Width, int Height, byte[] lookup)
+        {
+            for (int i = 0; i < Width; ++i)
+            {
+                for (int j = 0; j < Height; ++j)
+                {
+                    if (idMat[i, j] == 0) continue;
+                    idMat[i, j] = lookup[idMat[i, j]];
+                }
+            }
+        }
+
+        public AnalyzedObject createInitObj()
+        {
+            BoundingBox bBox = new BoundingBox();
+            bBox.topLeft.x = 10000;
+            bBox.topLeft.y = 10000;
+            bBox.bottomRight.x = 0;
+            bBox.bottomRight.y = 0;
+            
+            AnalyzedObject obj = new AnalyzedObject();
+            obj.decision = true;
+
+            //obj.leftTop.x = i;
+            //obj.leftTop.y = j;
+            //obj.size = size;
+            //obj.color = c;
+            obj.bBox = bBox;
+
+            return obj;
+        }
+
+        public void findObjects(Bitmap im, byte[,] idMat, AnalyzedObject[] tmpObj)
+        {
+            for (int i = 0; i < im.Width; ++i)
+            {
+                for (int j = 0; j < im.Height; ++j)
+                {
+                    if (idMat[i, j] == 0) continue;
+                    byte index = idMat[i, j];
+                    if (tmpObj[index] == null)
+                    {
+                        tmpObj[index] = createInitObj();
+                        tmpObj[index].leftTop.x = i;
+                        tmpObj[index].leftTop.y = j;
+                        tmpObj[index].color = im.GetPixel(i, j);
+                    }
+
+                    // set bounding box
+                    if (i < tmpObj[index].bBox.topLeft.x) tmpObj[index].bBox.topLeft.x = i;
+                    if (i > tmpObj[index].bBox.bottomRight.x) tmpObj[index].bBox.bottomRight.x = i;
+                    if (j < tmpObj[index].bBox.topLeft.y) tmpObj[index].bBox.topLeft.y = j;
+                    if (j > tmpObj[index].bBox.bottomRight.y) tmpObj[index].bBox.bottomRight.y = j;
+
+                    ++(tmpObj[index].size);
+                }
+            }
+        }
+
         public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height)
         {
             Bitmap bit = new Bitmap(argb, width, height);
@@ -327,10 +467,25 @@ namespace AnalyzeTrafficLight
             greenRange.blueMin = 0;
             greenRange.blueMax = 60;
 
-            Bitmap segImage = modify(origImage, redRange, greenRange);
+            byte[,] idMat = new byte[origImage.Width, origImage.Height];
+            byte currId = 0;
+            Bitmap segImage = modify(origImage, redRange, greenRange, idMat, ref currId);
+
+            byte[] lookup = new byte[currId + 1];
+            createIdLookup(idMat, segImage.Width, segImage.Height, lookup, ref currId);
+            fixIds(idMat, segImage.Width, segImage.Height, lookup);
 
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
-			detectObj(segImage, objects);
+            AnalyzedObject[] tmpObj = new AnalyzedObject[currId + 1];
+            findObjects(segImage, idMat, tmpObj);
+
+            for (int i = 1; i <= currId; ++i)
+            {
+                if (tmpObj[i].size < 40) continue;
+                objects.Add(tmpObj[i]);
+            }
+
+            //detectObj(segImage, objects);
             sizeFilter(objects, origImage);
 			blackBoxFilter(objects, origImage);
             //decide(result);
