@@ -105,7 +105,7 @@ namespace AnalyzeTrafficLight
                 return;
             }
             if (idMat[x+1, y-1] != 0)
-        {
+            {
                 idMat[x, y] = idMat[x+1,y-1];
                 return;
             }
@@ -375,19 +375,17 @@ namespace AnalyzeTrafficLight
 				double stdg = Math.Sqrt(sg2 / n - sg * sg);
 				double stdb = Math.Sqrt(sb2 / n - sb * sb);
 
-				if (sr > 20 || sg > 20 || sb > 20 || stdr > 30 || stdg > 30 || stdb > 30)
+				if (sr > 40 || sg > 40 || sb > 40 || stdr > 30 || stdg > 30 || stdb > 30)
 					obj.decision = false;
 			}
 		}
 
 		public static int findObj(List<AnalyzedObject> objects, int x, int y)
 		{
-			int id = -1;
 			foreach (var obj in objects)
 			{
-				id++;
-				if(x >= obj.bBox.topLeft.x && x <= obj.bBox.bottomRight.x && y >= obj.bBox.topLeft.y && y <= obj.bBox.bottomRight.y)
-					return id;
+                if (x >= obj.bBox.topLeft.x && x <= obj.bBox.bottomRight.x && y >= obj.bBox.topLeft.y && y <= obj.bBox.bottomRight.y)
+                    return obj.id;
 			}
 
 			return -1;
@@ -553,10 +551,15 @@ namespace AnalyzeTrafficLight
             AnalyzedObject[] tmpObj = new AnalyzedObject[currId + 1];
             findObjects(segImage, idMat, tmpObj);
 
+            byte count = 1;
             for (int i = 1; i <= currId; ++i)
             {
+                if (tmpObj[i] == null) continue;
                 if (tmpObj[i].size < 40) continue;
+
+                tmpObj[i].id = count;
                 objects.Add(tmpObj[i]);
+                ++count;
             }
 
             //detectObj(segImage, objects);
