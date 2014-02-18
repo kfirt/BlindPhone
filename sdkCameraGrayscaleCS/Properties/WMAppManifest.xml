@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="" />
-  <App xmlns="" ProductID="{f757e9ef-a202-466e-85aa-c21df4718d61}" Title="sdkCameraGrayscaleCS" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="sdkCameraGrayscaleCS author" Description="Sample description" Publisher="sdkCameraGrayscaleCS" PublisherID="{7128d550-7558-4be3-8043-53f8ec1fa8fc}">
-    <IconPath IsRelative="true" IsResource="false">ApplicationIcon.png</IconPath>
+  <App xmlns="" ProductID="{f757e9ef-a202-466e-85aa-c21df4718d61}" Title="Blind Phone" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="Weekathon Team" Description="Sample description" Publisher="Weekathon" PublisherID="{7128d550-7558-4be3-8043-53f8ec1fa8fc}">
+    <IconPath IsRelative="true" IsResource="false">Green.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_GAMERSERVICES" />
       <Capability Name="ID_CAP_IDENTITY_DEVICE" />
@@ -27,14 +27,18 @@
     <Tokens>
       <PrimaryToken TokenID="sdkCameraGrayscaleCSToken" TaskName="_default">
         <TemplateFlip>
-          <SmallImageURI IsResource="false" IsRelative="true">Background.png</SmallImageURI>
+          <SmallImageURI IsResource="false" IsRelative="true">Green.png</SmallImageURI>
           <Count>0</Count>
-          <BackgroundImageURI IsResource="false" IsRelative="true">Background.png</BackgroundImageURI>
-          <Title>sdkCameraGrayscaleCS</Title>
-          <BackContent></BackContent>
-          <BackBackgroundImageURI></BackBackgroundImageURI>
-          <BackTitle></BackTitle>
-          <DeviceLockImageURI></DeviceLockImageURI>
+          <BackgroundImageURI IsResource="false" IsRelative="true">Green.png</BackgroundImageURI>
+          <Title>Blind Phone</Title>
+          <BackContent>
+          </BackContent>
+          <BackBackgroundImageURI>
+          </BackBackgroundImageURI>
+          <BackTitle>
+          </BackTitle>
+          <DeviceLockImageURI>
+          </DeviceLockImageURI>
           <HasLarge>false</HasLarge>
         </TemplateFlip>
       </PrimaryToken>
