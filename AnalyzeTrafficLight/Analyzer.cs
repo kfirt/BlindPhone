@@ -517,6 +517,8 @@ namespace AnalyzeTrafficLight
             }
         }
 
+        
+        
         public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height)
         {
             // do the cutting here
