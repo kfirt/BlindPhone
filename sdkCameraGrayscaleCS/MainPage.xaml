@@ -24,11 +24,11 @@
     shell:SystemTray.IsVisible="False">
 
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent" Margin="0,2,0,-2">
-        <Grid.ColumnDefinitions>
+    <Canvas x:Name="LayoutRoot" Background="Transparent" Margin="0,2,0,-2">
+        <!--<Grid.ColumnDefinitions>
             <ColumnDefinition Width="640" />
             <ColumnDefinition Width="160*" />
-        </Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>-->
 
         <!--Overlay for the viewfinder region to display grayscale WriteableBitmap objects-->
         <Image x:Name="MainImage" 
@@ -65,6 +65,6 @@
         <!--Used for debugging >-->
         <TextBlock Height="40" HorizontalAlignment="Left" Margin="8,428,0,0" Name="txtDebug" VerticalAlignment="Top" Width="626" FontSize="24" FontWeight="ExtraBold" />
 
-    </Grid>
+    </Canvas>
 
 </phone:PhoneApplicationPage>
