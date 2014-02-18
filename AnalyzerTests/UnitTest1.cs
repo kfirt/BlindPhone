@@ -86,6 +86,7 @@ namespace AnalyzerTests
                 {
                     System.Drawing.Color pixelColor = image.GetPixel(x, y);
                     map[y*image.Width + x] = pixelColor.ToArgb();
+                    pixelColor.GetHue();  
                 }
             }
            

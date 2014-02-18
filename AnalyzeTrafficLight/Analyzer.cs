@@ -517,6 +517,14 @@ namespace AnalyzeTrafficLight
 
         public List<AnalyzedObject> analyzeImage(int[] argb, int width, int height)
         {
+            // do the cutting here
+
+            return analyzeImageInternal(argb, width, height); 
+        }
+
+
+        private List<AnalyzedObject> analyzeImageInternal(int[] argb, int width, int height)
+        {
             Bitmap bit = new Bitmap(argb, width, height);
             return analyzeImage(bit); 
         }
