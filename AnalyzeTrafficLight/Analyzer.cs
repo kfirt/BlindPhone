@@ -87,30 +87,31 @@ namespace AnalyzeTrafficLight
             }
         }
 
-        static void setId(Bitmap im, int[,] idMat, ref int currId, int x, int y)
+        static int setId(Bitmap im, int[,] idMat, ref int currId, int x, int y)
         {
             if (idMat[x-1,y] != 0)
             {
                 idMat[x,y] = idMat[x-1,y];
-                return;
+                return idMat[x, y];
             }
             if (idMat[x-1,y-1] != 0)
             {
                 idMat[x,y] = idMat[x-1,y-1];
-                return;
+                return idMat[x, y];
             }
             if (idMat[x,y-1] != 0)
             {
                 idMat[x,y] = idMat[x,y-1];
-                return;
+                return idMat[x, y];
             }
             if (idMat[x+1, y-1] != 0)
             {
                 idMat[x, y] = idMat[x+1,y-1];
-                return;
+                return idMat[x, y];
             }
             ++currId;
             idMat[x, y] = currId;
+            return idMat[x, y];
         }
 
         static Bitmap modify(Bitmap im, ColorRange redRange, ColorRange greenRange, int[,] idMat, ref int currId)
@@ -125,15 +126,15 @@ namespace AnalyzeTrafficLight
                     //if (im.GetPixel(i, j).isRed())
                     {
                         res.SetPixel(i, j, Color.red);
-                        setId(im, idMat, ref currId, i, j);
-                        dilate(im, ref res, Color.red, i, j, 10, idMat, currId);
+                        int idToUse = setId(im, idMat, ref currId, i, j);
+                        dilate(im, ref res, Color.red, i, j, 10, idMat, idToUse);
                     }
                     else if (greenRange.inRange(im.GetPixel(i, j)))
                     //else if (im.GetPixel(i, j).isGreenLight())
                     {
                         res.SetPixel(i, j, Color.green);
-                        setId(im, idMat, ref currId, i, j);
-                        dilate(im, ref res, Color.green, i, j, 10, idMat, currId);
+                        int idToUse = setId(im, idMat, ref currId, i, j);
+                        dilate(im, ref res, Color.green, i, j, 10, idMat, idToUse);
                     }
                 }
             }
@@ -405,32 +406,32 @@ namespace AnalyzeTrafficLight
             return AnalyzedState.Red;
         }
 
-        public void createIdLookup(int[,] idMat, int Width, int Height, int[] lookup, ref int currId)
+        public void createIdLookup(Bitmap im, int[,] idMat, int[] lookup, ref int currId)
         {
             bool[,] groupConn = new bool[currId + 1, currId + 1];
 
-            for (int i = 1; i < Width-1; ++i)
+            for (int i = 1; i < im.Width-1; ++i)
             {
-                for (int j = 1; j < Height-1; ++j)
+                for (int j = 1; j < im.Height-1; ++j)
                 {
                     if (idMat[i, j] == 0) continue;
 
-                    if (idMat[i + 1, j] != 0)
+                    if (idMat[i + 1, j] != 0 && im.GetPixel(i,j).Equal(im.GetPixel(i+1,j)))
                     {
                         groupConn[idMat[i, j], idMat[i + 1, j]] = true;
                         groupConn[idMat[i+1, j], idMat[i, j]] = true;
                     }
-                    if (idMat[i + 1, j+1] != 0)
+                    if (idMat[i + 1, j+1] != 0 && im.GetPixel(i,j).Equal(im.GetPixel(i+1,j+1)))
                     {
                         groupConn[idMat[i, j], idMat[i + 1, j+1]] = true;
                         groupConn[idMat[i + 1, j+1], idMat[i, j]] = true;
                     }
-                    if (idMat[i, j+1] != 0)
+                    if (idMat[i, j+1] != 0 && im.GetPixel(i,j).Equal(im.GetPixel(i,j+1)))
                     {
                         groupConn[idMat[i, j], idMat[i, j+1]] = true;
                         groupConn[idMat[i, j+1], idMat[i, j]] = true;
                     }
-                    if (idMat[i-1, j + 1] != 0)
+                    if (idMat[i-1, j + 1] != 0 && im.GetPixel(i,j).Equal(im.GetPixel(i-1,j+1)))
                     {
                         groupConn[idMat[i, j], idMat[i-1, j + 1]] = true;
                         groupConn[idMat[i-1, j + 1], idMat[i, j]] = true;
@@ -544,7 +545,7 @@ namespace AnalyzeTrafficLight
             Bitmap segImage = modify(origImage, redRange, greenRange, idMat, ref currId);
 
             int[] lookup = new int[currId + 1];
-            createIdLookup(idMat, segImage.Width, segImage.Height, lookup, ref currId);
+            createIdLookup(segImage, idMat, lookup, ref currId);
             fixIds(idMat, segImage.Width, segImage.Height, lookup);
 
             List<AnalyzedObject> objects = new List<AnalyzedObject>();
