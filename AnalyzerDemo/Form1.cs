@@ -54,6 +54,7 @@ namespace AnalyzerDemo
         }
 
         private List<RectWithColor> rects = new List<RectWithColor>();
+		private List<AnalyzedObject> analyzedObjects;
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -74,7 +75,7 @@ namespace AnalyzerDemo
 
 
             Analyzer analyzer = new Analyzer();
-            var analyzedObjects = analyzer.analyzeImage(map, image.Width, image.Height);
+            analyzedObjects = analyzer.analyzeImage(map, image.Width, image.Height);
             this.rects.Clear();
 
             foreach (var analyzedObject in analyzedObjects)
@@ -141,7 +142,8 @@ namespace AnalyzerDemo
 		private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
 		{
 			System.Drawing.Color c = bmp.GetPixel(e.X, e.Y);
-			textBox1.Text = "X=" + e.X + ", Y=" + e.Y + "   R=" + c.R + ", G=" + c.G + ", B=" + c.B;
+			int id = Analyzer.findObj(analyzedObjects, e.X, e.Y);
+			textBox1.Text = "X=" + e.X + ", Y=" + e.Y + "   R=" + c.R + ", G=" + c.G + ", B=" + c.B + ", ObjId=" + id;
 		}
     }
     public class RectWithColor

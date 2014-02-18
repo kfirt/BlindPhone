@@ -349,6 +349,20 @@ namespace AnalyzeTrafficLight
 					obj.decision = false;
 			}
 		}
+
+		public static int findObj(List<AnalyzedObject> objects, int x, int y)
+		{
+			int id = -1;
+			foreach (var obj in objects)
+			{
+				id++;
+				if(x >= obj.bBox.topLeft.x && x <= obj.bBox.bottomRight.x && y >= obj.bBox.topLeft.y && y <= obj.bBox.bottomRight.y)
+					return id;
+			}
+
+			return -1;
+		}
+
 		static AnalyzedState decide(List<AnalyzedObject> objects)
         {
             if (objects.Count == 0) return AnalyzedState.Unknown;
