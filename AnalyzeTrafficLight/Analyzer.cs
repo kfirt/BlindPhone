@@ -393,18 +393,23 @@ namespace AnalyzeTrafficLight
 			return -1;
 		}
 
-		static AnalyzedState decide(List<AnalyzedObject> objects)
+		public AnalyzedState decide(List<AnalyzedObject> objects)
         {
-            if (objects.Count == 0) return AnalyzedState.Unknown;
-            AnalyzedObject first = objects.ElementAt<AnalyzedObject>(0);
-            foreach (var obj in objects)
-            {
-                if (first.color != obj.color) return 0;
-            }
+            int upperLocation = Int32.MaxValue; // this will hold the location of the most upper BBox 
+            AnalyzedState result = AnalyzedState.Unknown; 
+            foreach (AnalyzedObject o in objects)
+                if (o.decision == true)
+                {
+                    if (upperLocation > o.bBox.topLeft.y) // we have higher BBox 
+                    {
+                        if (o.color.Equal(Color.green)) result = AnalyzedState.Green;
+                        else if (o.color.Equal(Color.red)) result = AnalyzedState.Red;
+                        else result = AnalyzedState.Unknown; // should not happen
 
-            if (first.color.R == Color.green.R && first.color.G == Color.green.G && first.color.B == Color.green.B)
-                return AnalyzedState.Green;
-            return AnalyzedState.Red;
+                        upperLocation = o.bBox.topLeft.y; 
+                    }
+                }
+            return result;
         }
 
         public void createIdLookup(Bitmap im, int[,] idMat, int[] lookup, ref int currId)

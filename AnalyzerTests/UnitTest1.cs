@@ -315,15 +315,16 @@ namespace AnalyzerTests
                 }
             }
            
-            List<AnalyzedObject> objectList = analyzer.analyzeImage(map, image.Width, image.Height); 
-            foreach (AnalyzedObject o in objectList)
-                if (o.decision == true)
-                {
-                    if (o.color.Equal(Color.green)) return AnalyzedState.Green;
-                    else if (o.color.Equal(Color.red)) return AnalyzedState.Red;
-                    else return AnalyzedState.Unknown; 
-                }
-            return AnalyzedState.Unknown; 
+            List<AnalyzedObject> objectList = analyzer.analyzeImage(map, image.Width, image.Height);
+            return analyzer.decide(objectList); 
+            //foreach (AnalyzedObject o in objectList)
+            //    if (o.decision == true)
+            //    {
+            //        if (o.color.Equal(Color.green)) return AnalyzedState.Green;
+            //        else if (o.color.Equal(Color.red)) return AnalyzedState.Red;
+            //        else return AnalyzedState.Unknown; 
+            //    }
+            //return AnalyzedState.Unknown; 
         }
     }
 }
