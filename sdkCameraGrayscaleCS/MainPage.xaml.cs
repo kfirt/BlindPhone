@@ -149,6 +149,14 @@ namespace sdkCameraGrayscaleCS
                     bitmapImage.SetSource(ms);
                     WriteableBitmap wbp = new WriteableBitmap(bitmapImage);
 
+                    using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+                    {
+                        using (IsolatedStorageFileStream targetStream = isStore.OpenFile("Wbp.jpg", FileMode.Create, FileAccess.Write))
+                        {
+                            wbp.SaveJpeg(targetStream, bitmapImage.PixelWidth, bitmapImage.PixelHeight, 0, 100);
+                        }
+                    }
+
                     // Save photo as JPEG to the local folder.
                     using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
                     {
