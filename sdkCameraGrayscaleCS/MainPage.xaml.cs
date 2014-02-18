@@ -29,6 +29,9 @@ using Microsoft.Devices;
 using System.Windows.Media.Imaging;
 using System.Threading;
 using AnalyzeTrafficLight;
+using System.IO.IsolatedStorage;
+using Microsoft.Xna.Framework.Media;
+
 
 namespace sdkCameraGrayscaleCS
 {
@@ -98,14 +101,19 @@ namespace sdkCameraGrayscaleCS
 
                 this.Dispatcher.BeginInvoke(delegate()
                 {
-                    wb = new WriteableBitmap((int)cam.Resolution.Width, (int)cam.Resolution.Height);
+                    //wb = new WriteableBitmap((int)cam.Resolution.Width, (int)cam.Resolution.Height);
+                    wb = new WriteableBitmap((int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);
                     this.MainImage.Visibility = Visibility.Visible;
                     this.MainImage.Source = wb;
                     cam.CaptureImageAvailable += new EventHandler<ContentReadyEventArgs>(cameraCaptureTask_Completed);
                     //cam.GetPreviewBufferArgb32(wb.Pixels);
                     //wb.Invalidate();
+                    cam.FlashMode = FlashMode.Off;
 
-                    //PumpARGBFrames(null, null);
+                    PumpARGBFrames(null, null);
+
+
+
                     // creating timer instance
                     DispatcherTimer newTimer = new DispatcherTimer();
                     // timer interval specified as 1 second
@@ -127,14 +135,54 @@ namespace sdkCameraGrayscaleCS
             {
                 e.ImageStream.Seek(0, SeekOrigin.Begin);
                 e.ImageStream.CopyTo(ms);
+
+                // Save photo to the media library camera roll.
+                e.ImageStream.Seek(0, SeekOrigin.Begin);
+                MediaLibrary library = new MediaLibrary();
+                library.SavePictureToCameraRoll("CameraRoll.jpg", e.ImageStream);
+
+                // Set the position of the stream back to start
+                e.ImageStream.Seek(0, SeekOrigin.Begin);
+                var bitmapImage = new BitmapImage();
+                bitmapImage.SetSource(ms);
+                WriteableBitmap wbp = new WriteableBitmap(bitmapImage);
+
+                // Save photo as JPEG to the local folder.
+                using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    using (IsolatedStorageFileStream targetStream = isStore.OpenFile("ARGBStream", FileMode.Create, FileAccess.Write))
+                    {
+                        // Initialize the buffer for 4KB disk pages.
+                        byte[] result = new byte[wbp.Pixels.Length * sizeof(int)];
+                        Buffer.BlockCopy(wbp.Pixels, 0, result, 0, result.Length);
+
+                        targetStream.Write(result, 0, result.Length);
+
+                        //// Initialize the buffer for 4KB disk pages.
+                        //byte[] readBuffer = new byte[4096];
+                        //int bytesRead = -1;
+
+                        //// Copy the image to the local folder. 
+                        //while ((bytesRead = e.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
+                        //{
+                        //    targetStream.Write(readBuffer, 0, bytesRead);
+                        //}
+                    }
+                }
+
                 Deployment.Current.Dispatcher.BeginInvoke(delegate()
                 {
+                    //ms.Seek(0, SeekOrigin.Begin);
+                    wb.SetSource(ms);
+                    //cam.GetPreviewBufferArgb32(wb.Pixels);
+                    // Copy to WriteableBitmap.
+                    wb.Invalidate();
+                    //});
+
+                    //Deployment.Current.Dispatcher.BeginInvoke(delegate()
+                    //{
                     try
                     {
-                        wb.SetSource(ms);
-                        // Copy to WriteableBitmap.
-                        wb.Invalidate();
-
                         foreach (var oldRect in rects)
                         {
                             this.LayoutRoot.Children.Remove(oldRect);
@@ -142,15 +190,15 @@ namespace sdkCameraGrayscaleCS
                         rects.Clear();
 
                         Analyzer a = new Analyzer();
-                        IEnumerable<AnalyzedObject> analyzedObjects = a.analyzeImage(wb.Pixels, (int)cam.Resolution.Width, (int)cam.Resolution.Height);//, ycbcr, cam.YCbCrPixelLayout.RequiredBufferSize);
-                        
+                        IEnumerable<AnalyzedObject> analyzedObjects = a.analyzeImage(wb.Pixels, (int)cam.PreviewResolution.Width, (int)cam.PreviewResolution.Height);//, ycbcr, cam.YCbCrPixelLayout.RequiredBufferSize);
+
                         string state = "Unknown";
                         foreach (var analyzedObject in analyzedObjects)
                         {
-                            var color = Colors.Yellow;
+                            var color = Colors.Blue;
                             if (analyzedObject.decision == true)
                             {
-                                color = Colors.Blue;
+                                color = Colors.Yellow;
 
                                 if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green))
                                 {
@@ -163,30 +211,28 @@ namespace sdkCameraGrayscaleCS
                             }
                             else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green))
                             {
-                                color = Colors.Green;
+                                color = Colors.Red;
                             }
                             else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.red))
                             {
-                                color = Colors.Red;
+                                color = Colors.Green;
                             }
 
-                            int rectx = Convert.ToInt32(analyzedObject.leftTop.x * 640 / cam.Resolution.Width);
-                            int recty = Convert.ToInt32(analyzedObject.leftTop.y * 480 / cam.Resolution.Height);
+                            int rectx = Convert.ToInt32(analyzedObject.leftTop.x * this.MainImage.Width / cam.PreviewResolution.Width);
+                            int recty = Convert.ToInt32(analyzedObject.leftTop.y * this.MainImage.Height / cam.PreviewResolution.Height);
                             Rectangle rect = new Rectangle();
                             rect.Stroke = new SolidColorBrush(color);
                             rect.Width = 30;
                             rect.Height = 30;
                             this.LayoutRoot.Children.Add(rect);
-                            Canvas.SetLeft(rect, rectx);
+                            Canvas.SetLeft(rect, recty);
                             Canvas.SetTop(rect, rectx);
                             rects.Add(rect);
                         }
-                        
+
                         //var uri = string.Format("Assets/{0}.mp3", state);
                         //MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
                         //MyMedia.Play();
-
-                        //pauseFramesEvent.Set();
                     }
                     finally
                     {

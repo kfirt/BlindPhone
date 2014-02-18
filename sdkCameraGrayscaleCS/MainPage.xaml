@@ -34,7 +34,6 @@
         <Image x:Name="MainImage" 
                Width="640" Height="480" 
                HorizontalAlignment="Left" 
-               
                Margin="16,0,0,15"
                Stretch="Uniform"
                Visibility="Visible"/>
