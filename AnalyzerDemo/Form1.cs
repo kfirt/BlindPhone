@@ -14,7 +14,7 @@ namespace AnalyzerDemo
     public partial class Form1 : Form
     {
         string path = @"C:\Users\Adi\Source\Repos\BlindPhone\AnalyzerTests\greens\WP_20140216_011.jpg";
-		System.Drawing.Bitmap bmp;
+        System.Drawing.Bitmap bmp;
 
         public Form1()
         {
@@ -41,8 +41,8 @@ namespace AnalyzerDemo
                     // and assign that to the PictureBox.Image property
                     this.path = dlg.FileName;
                     pictureBox1.Image = new System.Drawing.Bitmap(dlg.FileName);
-					bmp = new System.Drawing.Bitmap(pictureBox1.Image);
-					this.FindForm().Text = this.path;
+                    bmp = new System.Drawing.Bitmap(pictureBox1.Image);
+                    this.FindForm().Text = this.path;
                 }
 
             }
@@ -54,10 +54,11 @@ namespace AnalyzerDemo
         }
 
         private List<RectWithColor> rects = new List<RectWithColor>();
-		private List<AnalyzedObject> analyzedObjects;
+        private List<AnalyzedObject> analyzedObjects;
 
         private void button2_Click(object sender, EventArgs e)
         {
+            textBox1.Text = "Analyzing...";
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(path);
 
             // Loop through the image
@@ -73,7 +74,8 @@ namespace AnalyzerDemo
                 }
             }
 
-
+            System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
+            st.Start();
             Analyzer analyzer = new Analyzer();
             analyzedObjects = analyzer.analyzeImage(map, image.Width, image.Height);
             this.rects.Clear();
@@ -111,8 +113,10 @@ namespace AnalyzerDemo
                     Pen = new Pen(color, 2)
                 });
             }
-
+            st.Stop();
             pictureBox1.Invalidate();
+            textBox1.Text = string.Format("Analyze took {0} ms. Found {1} objects ({2} traffic lights)", 
+                st.ElapsedMilliseconds, analyzedObjects.Count, analyzedObjects.Where(x => x.decision == true).Count());
         }
 
         static System.Drawing.Color convertColor(AnalyzeTrafficLight.Color color)
@@ -137,14 +141,14 @@ namespace AnalyzerDemo
             {
                 g.DrawRectangle(rect.Pen, rect.Rectangle);
             }
-		}
+        }
 
-		private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
-		{
-			System.Drawing.Color c = bmp.GetPixel(e.X, e.Y);
-			int id = Analyzer.findObj(analyzedObjects, e.X, e.Y);
-			textBox1.Text = "X=" + e.X + ", Y=" + e.Y + "   R=" + c.R + ", G=" + c.G + ", B=" + c.B + ", ObjId=" + id;
-		}
+        private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            System.Drawing.Color c = bmp.GetPixel(e.X, e.Y);
+            int id = Analyzer.findObj(analyzedObjects, e.X, e.Y);
+            textBox1.Text = "X=" + e.X + ", Y=" + e.Y + "   R=" + c.R + ", G=" + c.G + ", B=" + c.B + ", ObjId=" + id;
+        }
     }
     public class RectWithColor
     {
