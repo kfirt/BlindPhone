@@ -36,7 +36,8 @@
                HorizontalAlignment="Left" 
                Margin="16,0,0,15"
                Stretch="Uniform"
-               Visibility="Visible"/>
+               Visibility="Visible"
+               />
 
         <!--Camera viewfinder >-->
         <Rectangle Width="160" Height="120" 
