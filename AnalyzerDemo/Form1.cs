@@ -63,6 +63,7 @@ namespace AnalyzerDemo
                         bmp = new System.Drawing.Bitmap(pictureBox1.Image);
                     //}
                     this.FindForm().Text = this.path;
+					this.rects.Clear();
                 }
 
             }
