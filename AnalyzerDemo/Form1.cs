@@ -43,27 +43,10 @@ namespace AnalyzerDemo
                     // and assign that to the PictureBox.Image property
                     this.path = dlg.FileName;
 
-                    //if (Path.GetExtension(this.path).Equals(".ARGB", StringComparison.OrdinalIgnoreCase))
-                    //{
-
-                    //    byte[] bytes = File.ReadAllBytes(this.path);
-                    //    var ms = new MemoryStream(bytes);
-                    //    var bmi = new BitmapImage();
-                    //    bmi.BeginInit();
-                    //    bmi.StreamSource = ms;
-                    //    bmi.EndInit();
-                        
-                    //    WriteableBitmap image = new WriteableBitmap(bmi);
-                        
-                    //    pictureBox1.Image = BitmapFromWriteableBitmap(image);
-                    //}
-                    //else
-                    //{
-                        pictureBox1.Image = new System.Drawing.Bitmap(this.path);
-                        bmp = new System.Drawing.Bitmap(pictureBox1.Image);
-                    //}
+                    pictureBox1.Image = new System.Drawing.Bitmap(this.path);
+                    bmp = new System.Drawing.Bitmap(pictureBox1.Image);
                     this.FindForm().Text = this.path;
-					this.rects.Clear();
+                    this.rects.Clear();
                 }
 
             }
@@ -97,22 +80,14 @@ namespace AnalyzerDemo
 
             // Loop through the image
             int[] map = new int[(int)image.Width * (int)image.Height];
-            //for (int y = 0; y < image.Height; y++)
-            //{
-            //    for (int x = 0; x < image.Width; x++)
-            //    {
-            //        System.Drawing.Color pixelColor = image.GetPixel(x, y);
-            //        map[y * image.Width + x] = pixelColor.ToArgb();
-            //    }
-            //}
-
-            //byte[] b = new byte[map.Length * sizeof(int)];
-            //Buffer.BlockCopy(map, 0, b, 0, b.Length);
-            //File.WriteAllBytes(@"C:\Users\Adi\Desktop\Pics\BlindPhone_20140218165725.ARGB2", b);
-
-            byte[] bytes = File.ReadAllBytes(@"C:\Users\Adi\Desktop\Pics\BlindPhone_20140218165725.ARGB");
-            Buffer.BlockCopy(bytes, 0, map, 0, bytes.Length);
-
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    System.Drawing.Color pixelColor = image.GetPixel(x, y);
+                    map[y * image.Width + x] = pixelColor.ToArgb();
+                }
+            }
 
             System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
             st.Start();
@@ -155,7 +130,7 @@ namespace AnalyzerDemo
             }
             st.Stop();
             pictureBox1.Invalidate();
-            textBox1.Text = string.Format("Analyze took {0} ms. Found {1} objects ({2} traffic lights)", 
+            textBox1.Text = string.Format("Analyze took {0} ms. Found {1} objects ({2} traffic lights)",
                 st.ElapsedMilliseconds, analyzedObjects.Count, analyzedObjects.Where(x => x.decision == true).Count());
         }
 
