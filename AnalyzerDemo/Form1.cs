@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AnalyzeTrafficLight;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace AnalyzerDemo
 {
@@ -40,12 +42,44 @@ namespace AnalyzerDemo
                     // Create a new Bitmap object from the picture file on disk,
                     // and assign that to the PictureBox.Image property
                     this.path = dlg.FileName;
-                    pictureBox1.Image = new System.Drawing.Bitmap(dlg.FileName);
-                    bmp = new System.Drawing.Bitmap(pictureBox1.Image);
+
+                    //if (Path.GetExtension(this.path).Equals(".ARGB", StringComparison.OrdinalIgnoreCase))
+                    //{
+
+                    //    byte[] bytes = File.ReadAllBytes(this.path);
+                    //    var ms = new MemoryStream(bytes);
+                    //    var bmi = new BitmapImage();
+                    //    bmi.BeginInit();
+                    //    bmi.StreamSource = ms;
+                    //    bmi.EndInit();
+                        
+                    //    WriteableBitmap image = new WriteableBitmap(bmi);
+                        
+                    //    pictureBox1.Image = BitmapFromWriteableBitmap(image);
+                    //}
+                    //else
+                    //{
+                        pictureBox1.Image = new System.Drawing.Bitmap(this.path);
+                        bmp = new System.Drawing.Bitmap(pictureBox1.Image);
+                    //}
                     this.FindForm().Text = this.path;
+					this.rects.Clear();
                 }
 
             }
+        }
+
+        private System.Drawing.Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
+        {
+            System.Drawing.Bitmap bmp;
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create((BitmapSource)writeBmp));
+                enc.Save(outStream);
+                bmp = new System.Drawing.Bitmap(outStream);
+            }
+            return bmp;
         }
 
         private void PictureBox1_LoadCompleted(Object sender, AsyncCompletedEventArgs e)
@@ -63,16 +97,22 @@ namespace AnalyzerDemo
 
             // Loop through the image
             int[] map = new int[(int)image.Width * (int)image.Height];
+            //for (int y = 0; y < image.Height; y++)
+            //{
+            //    for (int x = 0; x < image.Width; x++)
+            //    {
+            //        System.Drawing.Color pixelColor = image.GetPixel(x, y);
+            //        map[y * image.Width + x] = pixelColor.ToArgb();
+            //    }
+            //}
 
-            for (int y = 0; y < image.Height; y++)
-            {
-                for (int x = 0; x < image.Width; x++)
-                {
-                    System.Drawing.Color pixelColor = image.GetPixel(x, y);
-                    map[y * image.Width + x] = pixelColor.ToArgb();
-                    //pixelColor.
-                }
-            }
+            //byte[] b = new byte[map.Length * sizeof(int)];
+            //Buffer.BlockCopy(map, 0, b, 0, b.Length);
+            //File.WriteAllBytes(@"C:\Users\Adi\Desktop\Pics\BlindPhone_20140218165725.ARGB2", b);
+
+            byte[] bytes = File.ReadAllBytes(@"C:\Users\Adi\Desktop\Pics\BlindPhone_20140218165725.ARGB");
+            Buffer.BlockCopy(bytes, 0, map, 0, bytes.Length);
+
 
             System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
             st.Start();

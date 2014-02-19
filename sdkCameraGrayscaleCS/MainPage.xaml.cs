@@ -1,14 +1,3 @@
-/* 
-    Copyright (c) 2012 - 2013 Microsoft Corporation.  All rights reserved.
-    Use of this sample source code is subject to the terms of the Microsoft license 
-    agreement under which you licensed this sample source code and is provided AS-IS.
-    If you did not accept the terms of the license agreement, you are not authorized 
-    to use this sample source code.  For the terms of the license, please see the 
-    license agreement between you and Microsoft.
-  
-    To see all Code Samples for Windows Phone, visit http://code.msdn.microsoft.com/wpapps
-  
-*/
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +21,6 @@ using AnalyzeTrafficLight;
 using System.IO.IsolatedStorage;
 using Microsoft.Xna.Framework.Media;
 
-
 namespace sdkCameraGrayscaleCS
 {
     public partial class MainPage : PhoneApplicationPage
@@ -41,11 +29,13 @@ namespace sdkCameraGrayscaleCS
         PhotoCamera cam = new PhotoCamera();
         private static ManualResetEvent pauseFramesEvent = new ManualResetEvent(true);
         private WriteableBitmap wb;
-        //private Thread ARGBFramesThread;
-        //private bool pumpARGBFrames;
         MediaElement MyMedia = new MediaElement();
-        private List<Rectangle> rects = new List<Rectangle>();
+        private List<Rectangle> Rectangles = new List<Rectangle>();
         private int WaitBetweenPics = 5;
+        private DispatcherTimer MyTimer = new DispatcherTimer();
+        private const string DemoSeriesFolder = @"/series 2/";
+        private string[] DemoSeries;
+        private int DemoSeriesIndex = 0;
 
         // Constructor
         public MainPage()
@@ -107,20 +97,14 @@ namespace sdkCameraGrayscaleCS
                     this.MainImage.Visibility = Visibility.Visible;
                     this.MainImage.Source = wb;
                     cam.CaptureImageAvailable += new EventHandler<ContentReadyEventArgs>(cameraCaptureTask_Completed);
-                   
+
                     cam.FlashMode = FlashMode.Off;
 
-                    PumpARGBFrames(null, null);
-
-                    // creating timer instance
-                    DispatcherTimer newTimer = new DispatcherTimer();
                     // timer interval specified as 1 second
-                    newTimer.Interval = TimeSpan.FromSeconds(WaitBetweenPics);
+                    MyTimer.Interval = TimeSpan.FromSeconds(WaitBetweenPics);
                     // Sub-routine OnTimerTick will be called at every 1 second
-                    //newTimer.Tick += OnTimerTick;
-                    newTimer.Tick += PumpARGBFrames;
-                    // starting the timer
-                    newTimer.Start();
+
+                    StartDemoMode();
                 });
 
             }
@@ -145,71 +129,47 @@ namespace sdkCameraGrayscaleCS
                 }
             }
             return filename;
-
-            // Save photo as JPEG to the local folder.
-            //using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
-            //{
-            //    using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename + ".ARGB",
-            //           FileMode.Create, FileAccess.Write))
-            //    {
-            //        // Initialize the buffer for 4KB disk pages.
-            //        byte[] result = new byte[wbp.Pixels.Length * sizeof(int)];
-            //        Buffer.BlockCopy(wbp.Pixels, 0, result, 0, result.Length);
-
-            //        targetStream.Write(result, 0, result.Length);
-
-            //        //// Initialize the buffer for 4KB disk pages.
-            //        //byte[] readBuffer = new byte[4096];
-            //        //int bytesRead = -1;
-
-            //        //// Copy the image to the local folder. 
-            //        //while ((bytesRead = e.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
-            //        //{
-            //        //    targetStream.Write(readBuffer, 0, bytesRead);
-            //        //}
-            //    }
-            //}
-
-
-            //ms.Seek(0, SeekOrigin.Begin);
-            //wb.SetSource(ms);
-            ////cam.GetPreviewBufferArgb32(wb.Pixels);
-            //// Copy to WriteableBitmap.
-            //wb.Invalidate();
-            ////});
-
-
         }
+
         private void GenerateListofRectangles(IEnumerable<AnalyzedObject> analyzedObjects)
         {
+            foreach (var oldRect in Rectangles)
+            {
+                this.LayoutRoot.Children.Remove(oldRect);
+            }
+            Rectangles.Clear();
+
             foreach (var analyzedObject in analyzedObjects)
             {
                 var color = Colors.Blue;
                 if (analyzedObject.decision == true)
                 {
-                    color = Colors.Yellow;
+                    color = System.Windows.Media.Color.FromArgb(255, 255, 255, 146);
                 }
                 else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.green))
                 {
-                    color = Colors.Red;
+                    color = System.Windows.Media.Color.FromArgb(255, 127, 255, 0);
                 }
                 else if (analyzedObject.color.Equal(AnalyzeTrafficLight.Color.red))
                 {
-                    color = Colors.Green;
+                    color = Colors.Red;
                 }
 
-                int rectx = Convert.ToInt32(analyzedObject.bBox.topLeft.y * this.MainImage.Height / cam.Resolution.Height);
-                int recty = Convert.ToInt32(analyzedObject.bBox.topLeft.x * this.MainImage.Width / cam.Resolution.Width);
+                const int BoxSize = 14;
+                int rectx = (int)this.MainImage.Margin.Top + Convert.ToInt32((analyzedObject.bBox.bottomRight.y + analyzedObject.bBox.topLeft.y) / 2 * this.MainImage.Height / cam.Resolution.Height);
+                int recty = (int)this.MainImage.Margin.Left + Convert.ToInt32((analyzedObject.bBox.topLeft.x + analyzedObject.bBox.bottomRight.x) / 2 * this.MainImage.Width / cam.Resolution.Width);
                 Rectangle rect = new Rectangle();
                 rect.Stroke = new SolidColorBrush(color);
-                rect.Width = 15;
-                rect.Height = 15;
+                rect.StrokeThickness = 2.5;
+                rect.Width = BoxSize;
+                rect.Height = BoxSize;
                 this.LayoutRoot.Children.Add(rect);
-                Canvas.SetLeft(rect, recty);
-                Canvas.SetTop(rect, rectx);
-                rects.Add(rect);
+                Canvas.SetLeft(rect, recty - BoxSize / 2);
+                Canvas.SetTop(rect, rectx - BoxSize / 2);
+                Rectangles.Add(rect);
             }
         }
+
         void cameraCaptureTask_Completed(object sender, ContentReadyEventArgs e)
         {
             MemoryStream ms = new MemoryStream();
@@ -222,36 +182,9 @@ namespace sdkCameraGrayscaleCS
                 {
                     try
                     {
-                        foreach (var oldRect in rects)
-                        {
-                            this.LayoutRoot.Children.Remove(oldRect);
-                        }
-                        rects.Clear();
+                        string filename = SavePictures(ms);
 
-                        string filename = SavePictures(ms); 
-
-                        using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
-                        //string[] directories = isStore.GetDirectoryNames("*");
-                        //string[] files = isStore.GetFileNames("*");
-                        //string filename = "\\" + directories[0] + "\\BlindPhone_20140218165648" + ".jpg";
-                        using (IsolatedStorageFileStream sourceStream = isStore.OpenFile(filename, FileMode.Open)) { 
-                        //WriteableBitmap wbpFromJpg = new WriteableBitmap((int)cam.Resolution.Width, (int)cam.Resolution.Height);
-                        //wbpFromJpg.LoadJpeg(sourceStream);
-                            sourceStream.Seek(0, SeekOrigin.Begin);
-                            wb.LoadJpeg(sourceStream);
-                            wb.Invalidate();
-                        }
-
-                        Analyzer a = new Analyzer();
-                        List<AnalyzedObject> analyzedObjects = a.analyzeImage(wb.Pixels,
-                                        (int)cam.Resolution.Width, (int)cam.Resolution.Height);//, ycbcr, cam.YCbCrPixelLayout.RequiredBufferSize);
-
-                        GenerateListofRectangles(analyzedObjects);
-
-                        AnalyzedState state_o = a.decide(analyzedObjects);
-                        var uri = string.Format("Assets/{0}.mp3", state_o.ToString());
-                        MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
-                        MyMedia.Play();
+                        AnalyzeAndDisplayImage(filename);
                     }
                     finally
                     {
@@ -266,36 +199,50 @@ namespace sdkCameraGrayscaleCS
             }
         }
 
-        // ARGB frame pump
-        void PumpARGBFrames(Object sender, EventArgs args)
+        private void AnalyzeAndDisplayImage(string filename)
+        {
+            this.Dispatcher.BeginInvoke(delegate()
+            {
+
+                using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+                using (IsolatedStorageFileStream sourceStream = isStore.OpenFile(filename, FileMode.Open))
+                {
+                    sourceStream.Seek(0, SeekOrigin.Begin);
+                    wb.LoadJpeg(sourceStream);
+                    wb.Invalidate();
+                }
+
+                Analyzer analyzer = new Analyzer();
+                List<AnalyzedObject> analyzedObjects = analyzer.analyzeImage(wb.Pixels,
+                                (int)cam.Resolution.Width, (int)cam.Resolution.Height);
+
+                GenerateListofRectangles(analyzedObjects);
+
+                AnalyzedState state_o = analyzer.decide(analyzedObjects);
+                var uri = string.Format("Assets/{0}.mp3", state_o.ToString());
+                MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                MyMedia.Play();
+
+            });
+        }
+
+        void PumpDemoFrames(Object sender, EventArgs args)
         {
             try
             {
-                PhotoCamera phCam = (PhotoCamera)cam;
+                if (DemoSeriesIndex == DemoSeries.Length)
+                {
+                    this.Dispatcher.BeginInvoke(delegate()
+                    {
+                        txtDebug.Text = "Demo finished";
 
-
-                pauseFramesEvent.WaitOne();
-                pauseFramesEvent.Reset();
-                phCam.CaptureImage();
-
-
-                //while (pumpARGBFrames)
-                //{
-
-                // Copies the current viewfinder frame into a buffer for further manipulation.
-
-                //byte[] ycbcr = new byte[cam.YCbCrPixelLayout.RequiredBufferSize];
-                //cam.Capture
-                //phCam.CaptureCompleted += new EventHandler<PhotoResult>(cameraCaptureTask_Completed);
-                //MemoryStream captureStream1 = new MemoryStream();
-                //PhotoCaptureDevice c = (CaptureDevice)cam;
-                //phCam.GetPreviewBufferArgb32(wb.Pixels);
-                //phCam.GetPreviewBufferYCbCr(ycbcr);
-                //MemoryStream ms = new MemoryStream();
-                //wbmp.SaveJpeg(ms, (int)cam.Resolution.Width, (int)cam.Resolution.Height, 0, 100);
-
-                //BitmapImage bmp = new BitmapImage();
-                //bmp.SetSource(ms);
+                    });
+                }
+                else
+                {
+                    AnalyzeAndDisplayImage(string.Format("/{0}/{1}", DemoSeriesFolder, DemoSeries[DemoSeriesIndex]));
+                    DemoSeriesIndex++;
+                }
             }
             catch (Exception e)
             {
@@ -305,6 +252,74 @@ namespace sdkCameraGrayscaleCS
                     txtDebug.Text = e.Message;
                 });
             }
+        }
+
+        void PumpLiveFrames(Object sender, EventArgs args)
+        {
+            try
+            {
+                PhotoCamera phCam = (PhotoCamera)cam;
+
+                pauseFramesEvent.WaitOne();
+                pauseFramesEvent.Reset();
+                phCam.CaptureImage();
+            }
+            catch (Exception e)
+            {
+                this.Dispatcher.BeginInvoke(delegate()
+                {
+                    txtDebug.Text = e.Message;
+                });
+            }
+        }
+
+        private void DemoMode_Clicked(object sender, RoutedEventArgs e)
+        {
+            StartDemoMode();
+        }
+
+        private void StartDemoMode()
+        {
+            this.Video.Visibility = Visibility.Collapsed;
+
+            this.Dispatcher.BeginInvoke(delegate()
+            {
+                txtDebug.Text = "Demo mode ON";
+
+            });
+
+            DemoSeriesIndex = 0;
+            using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                DemoSeries = isStore.GetFileNames(DemoSeriesFolder + "*");
+            }
+
+            MyTimer.Stop();
+            MyTimer.Tick -= PumpLiveFrames;
+            MyTimer.Tick += PumpDemoFrames;
+            MyTimer.Start();
+        }
+
+        private void LiveMode_Clicked(object sender, RoutedEventArgs e)
+        {
+            StartLiveMode();
+        }
+
+        private void StartLiveMode()
+        {
+            this.Video.Visibility = Visibility.Visible;
+
+            this.Dispatcher.BeginInvoke(delegate()
+            {
+                txtDebug.Text = "Live mode ON";
+            });
+
+            PumpLiveFrames(null, null);
+
+            MyTimer.Stop();
+            MyTimer.Tick += PumpLiveFrames;
+            MyTimer.Tick -= PumpDemoFrames;
+            MyTimer.Start();
         }
     }
 }

@@ -41,25 +41,29 @@
         <!--Camera viewfinder >-->
         <Rectangle Width="160" Height="120" 
                    HorizontalAlignment="Left" 
-                   VerticalAlignment="Bottom"  >
+                   VerticalAlignment="Bottom"
+                   x:Name="Video"
+                   Visibility="Collapsed">
             <Rectangle.Fill>
                 <VideoBrush x:Name="viewfinderBrush" />
             </Rectangle.Fill>
 
         </Rectangle>
 
-        
+
         <!--Button StackPanel to the right of viewfinder>-->
-        <!--<StackPanel Grid.Column="1" >
+        <StackPanel HorizontalAlignment="Left" 
+                    VerticalAlignment="Top" 
+                    Canvas.Left="621">
             <Button             
-                Content="Gray: ON"
-                Name="GrayscaleOnButton"  
-                Click="GrayOn_Clicked" />
+                Content="Demo Mode"
+                Name="DemoModeButton"  
+                Click="DemoMode_Clicked" />
             <Button             
-                Content="Gray: OFF"
-                Name="GrayscaleOffButton"  
-                Click="GrayOff_Clicked" />
-        </StackPanel>-->
+                Content="Live Mode"
+                Name="LiveModeButton"  
+                Click="LiveMode_Clicked" />
+        </StackPanel>
 
         <!--Used for debugging >-->
         <TextBlock Height="40" HorizontalAlignment="Left" Margin="8,428,0,0" Name="txtDebug" VerticalAlignment="Top" Width="626" FontSize="24" FontWeight="ExtraBold" />
