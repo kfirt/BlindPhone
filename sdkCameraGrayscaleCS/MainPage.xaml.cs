@@ -97,7 +97,7 @@ namespace sdkCameraGrayscaleCS
                     this.MainImage.Visibility = Visibility.Visible;
                     this.MainImage.Source = wb;
                     cam.CaptureImageAvailable += new EventHandler<ContentReadyEventArgs>(cameraCaptureTask_Completed);
-                   
+
                     cam.FlashMode = FlashMode.Off;
 
                     // timer interval specified as 1 second
@@ -156,16 +156,16 @@ namespace sdkCameraGrayscaleCS
                 }
 
                 const int BoxSize = 14;
-                int rectx = (int)this.MainImage.Margin.Top + Convert.ToInt32((analyzedObject.bBox.bottomRight.y + analyzedObject.bBox.topLeft.y)/2 * this.MainImage.Height / cam.Resolution.Height);
-                int recty = (int)this.MainImage.Margin.Left + Convert.ToInt32((analyzedObject.bBox.topLeft.x + analyzedObject.bBox.bottomRight.x)/2 * this.MainImage.Width / cam.Resolution.Width);
+                int rectx = (int)this.MainImage.Margin.Top + Convert.ToInt32((analyzedObject.bBox.bottomRight.y + analyzedObject.bBox.topLeft.y) / 2 * this.MainImage.Height / cam.Resolution.Height);
+                int recty = (int)this.MainImage.Margin.Left + Convert.ToInt32((analyzedObject.bBox.topLeft.x + analyzedObject.bBox.bottomRight.x) / 2 * this.MainImage.Width / cam.Resolution.Width);
                 Rectangle rect = new Rectangle();
                 rect.Stroke = new SolidColorBrush(color);
                 rect.StrokeThickness = 2.5;
                 rect.Width = BoxSize;
                 rect.Height = BoxSize;
                 this.LayoutRoot.Children.Add(rect);
-                Canvas.SetLeft(rect, recty-BoxSize/2);
-                Canvas.SetTop(rect, rectx-BoxSize/2);
+                Canvas.SetLeft(rect, recty - BoxSize / 2);
+                Canvas.SetTop(rect, rectx - BoxSize / 2);
                 Rectangles.Add(rect);
             }
         }
@@ -184,7 +184,7 @@ namespace sdkCameraGrayscaleCS
                     {
                         string filename = SavePictures(ms);
 
-                        analyzeAndDisplayImage(filename);
+                        AnalyzeAndDisplayImage(filename);
                     }
                     finally
                     {
@@ -199,26 +199,31 @@ namespace sdkCameraGrayscaleCS
             }
         }
 
-        private void analyzeAndDisplayImage(string filename)
+        private void AnalyzeAndDisplayImage(string filename)
         {
-            using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
-            using (IsolatedStorageFileStream sourceStream = isStore.OpenFile(filename, FileMode.Open))
+            this.Dispatcher.BeginInvoke(delegate()
             {
-                sourceStream.Seek(0, SeekOrigin.Begin);
-                wb.LoadJpeg(sourceStream);
-                wb.Invalidate();
-            }
 
-            Analyzer a = new Analyzer();
-            List<AnalyzedObject> analyzedObjects = a.analyzeImage(wb.Pixels,
-                            (int)cam.Resolution.Width, (int)cam.Resolution.Height);
+                using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+                using (IsolatedStorageFileStream sourceStream = isStore.OpenFile(filename, FileMode.Open))
+                {
+                    sourceStream.Seek(0, SeekOrigin.Begin);
+                    wb.LoadJpeg(sourceStream);
+                    wb.Invalidate();
+                }
 
-            GenerateListofRectangles(analyzedObjects);
+                Analyzer analyzer = new Analyzer();
+                List<AnalyzedObject> analyzedObjects = analyzer.analyzeImage(wb.Pixels,
+                                (int)cam.Resolution.Width, (int)cam.Resolution.Height);
 
-            AnalyzedState state_o = a.decide(analyzedObjects);
-            var uri = string.Format("Assets/{0}.mp3", state_o.ToString());
-            MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
-            MyMedia.Play();
+                GenerateListofRectangles(analyzedObjects);
+
+                AnalyzedState state_o = analyzer.decide(analyzedObjects);
+                var uri = string.Format("Assets/{0}.mp3", state_o.ToString());
+                MyMedia.Source = new Uri(uri, UriKind.RelativeOrAbsolute);
+                MyMedia.Play();
+
+            });
         }
 
         void PumpDemoFrames(Object sender, EventArgs args)
@@ -231,11 +236,11 @@ namespace sdkCameraGrayscaleCS
                     {
                         txtDebug.Text = "Demo finished";
 
-                    });                    
+                    });
                 }
                 else
                 {
-                    analyzeAndDisplayImage(string.Format("/{0}/{1}", DemoSeriesFolder, DemoSeries[DemoSeriesIndex]));
+                    AnalyzeAndDisplayImage(string.Format("/{0}/{1}", DemoSeriesFolder, DemoSeries[DemoSeriesIndex]));
                     DemoSeriesIndex++;
                 }
             }
@@ -288,7 +293,7 @@ namespace sdkCameraGrayscaleCS
             {
                 DemoSeries = isStore.GetFileNames(DemoSeriesFolder + "*");
             }
-            
+
             MyTimer.Stop();
             MyTimer.Tick -= PumpLiveFrames;
             MyTimer.Tick += PumpDemoFrames;
