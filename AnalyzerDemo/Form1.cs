@@ -43,6 +43,7 @@ namespace AnalyzerDemo
                     pictureBox1.Image = new System.Drawing.Bitmap(dlg.FileName);
                     bmp = new System.Drawing.Bitmap(pictureBox1.Image);
                     this.FindForm().Text = this.path;
+					this.rects.Clear();
                 }
 
             }
