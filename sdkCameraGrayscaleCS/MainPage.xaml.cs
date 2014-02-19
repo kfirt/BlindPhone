@@ -33,17 +33,38 @@ namespace sdkCameraGrayscaleCS
         private List<Rectangle> Rectangles = new List<Rectangle>();
         private int WaitBetweenPics = 5;
         private DispatcherTimer MyTimer = new DispatcherTimer();
-        private const string DemoSeriesFolder = @"/series 2/";
+        private const string DemoSeriesFolder = @"/demo/";
         private string[] DemoSeries;
         private int DemoSeriesIndex = 0;
+
+        private const bool DemoAutoSlide = false;
 
         // Constructor
         public MainPage()
         {
             InitializeComponent();
             this.LayoutRoot.Children.Add(MyMedia);
+            
         }
-
+        protected override void OnManipulationStarted(ManipulationStartedEventArgs args)
+        {
+            if (!DemoAutoSlide)
+            {
+                PumpDemoFrames(null, null);
+            }
+            base.OnManipulationStarted(args);
+        }
+        //private string GetDemoSeriesFolder()
+        //{
+        //    using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+        //    {
+        //        if (isStore.FileExists("DemoSeriesFolder.txt")){
+        //        using (IsolatedStorageFileStream targetStream = isStore.OpenFile(filename,
+        //               FileMode.Create, FileAccess.Write))
+        //        {
+        //        }
+        //    }
+        //}
         //Code for camera initialization event, and setting the source for the viewfinder
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
@@ -291,13 +312,16 @@ namespace sdkCameraGrayscaleCS
             DemoSeriesIndex = 0;
             using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                DemoSeries = isStore.GetFileNames(DemoSeriesFolder + "*");
+                DemoSeries = isStore.GetFileNames(DemoSeriesFolder + "*.jpg");
             }
 
-            MyTimer.Stop();
-            MyTimer.Tick -= PumpLiveFrames;
-            MyTimer.Tick += PumpDemoFrames;
-            MyTimer.Start();
+            if (DemoAutoSlide) 
+            { 
+                MyTimer.Stop();
+                MyTimer.Tick -= PumpLiveFrames;
+                MyTimer.Tick += PumpDemoFrames;
+                MyTimer.Start();
+            }
         }
 
         private void LiveMode_Clicked(object sender, RoutedEventArgs e)
